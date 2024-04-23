@@ -2,26 +2,25 @@ package com.example.gestion_user.entities;
 
 import com.example.gestion_user.entities.enums.AppointmentType;
 import com.fasterxml.jackson.annotation.JsonFormat;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.util.Date;
 
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "appointments")
 public class Appointment {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idAppointment",nullable = false, updatable = false)
-    private Integer idAppointment ;
+    @Column(nullable = false, updatable = false)
+    private Long id ;
 
+    @NotBlank(message = "title is requires")
     @Column(nullable = false)
     private String title;
 

@@ -1,15 +1,17 @@
 package com.example.gestion_user.services;
 
 import com.example.gestion_user.entities.Court;
+import com.example.gestion_user.models.request.CourtDto;
 
 import java.util.List;
 
 public interface CourtService {
 
-    Court addCourt(Court court) ;
+    Court addCourt(CourtDto court) ;
+    Court updateCourt(Long id ,CourtDto court);
+    void deleteCourt(Long idCourt);
     List<Court> getCourts() ;
-    Court getCourtById(Integer idCourt);
-    Court updateCourt(Court court);
-    void deleteCourt(Integer idCourt);
+    Court getCourtById(Long idCourt);
+
 
 }

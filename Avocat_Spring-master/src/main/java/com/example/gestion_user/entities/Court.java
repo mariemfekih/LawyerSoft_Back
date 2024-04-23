@@ -1,26 +1,23 @@
 package com.example.gestion_user.entities;
 
 import com.example.gestion_user.entities.enums.CourtType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 import java.util.List;
 
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "courts")
 public class Court implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idCourt",nullable = false, updatable = false)
-    private Integer idCourt ;
+    @Column(nullable = false, updatable = false)
+    private Long id ;
 
     @Column(nullable = false)
     private String adress;
@@ -30,7 +27,7 @@ public class Court implements Serializable {
     private CourtType type;
 
     @Column(nullable = false)
-    private Long phone;
+    private String phone;
 
     @Column(nullable = false)
     private String governorate;

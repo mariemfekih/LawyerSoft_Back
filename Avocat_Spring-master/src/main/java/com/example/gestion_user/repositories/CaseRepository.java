@@ -7,9 +7,9 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface CaseRepository extends JpaRepository <Case, Integer> {
+public interface CaseRepository extends JpaRepository <Case, Long> {
 
-    List<Case> getCasesByTitle(String titleCase);
-    Case getCaseByTitle(String title);
+    List<Case> findAllByTitle(String titleCase);
+    Case findByTitle(String title);
 
 }

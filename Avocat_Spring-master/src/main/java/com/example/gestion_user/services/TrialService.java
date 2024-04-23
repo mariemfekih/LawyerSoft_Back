@@ -11,9 +11,9 @@ public interface TrialService {
 
     Trial updateTrial(Trial trial);
 
-    void deleteTrial(Integer idAudience);
+    void deleteTrial(Long id);
 
-    Trial getTrialById(Integer idAudience);
+    Trial getTrialById(Long id);
 
 
     }

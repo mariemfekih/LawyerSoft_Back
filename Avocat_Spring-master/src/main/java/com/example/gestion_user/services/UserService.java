@@ -19,27 +19,27 @@ public interface UserService {
 
     User getUserByEmail(String email);
 
-    public User getUserById(Integer id);
+    public User getUserById(Long id);
 
 
     UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
 
-    User register(String firstName, String lastName, String username, Long cin, String email, String password, Date birthdate, String city, Boolean gender, UserRole role) throws UserNotFoundException, EmailExistException, CinExistException, UsernameExistException;
+    User register(String firstName, String lastName, String username, String cin, String email, String password, Date birthdate, String city, Boolean gender, UserRole role) throws UserNotFoundException, EmailExistException, CinExistException, UsernameExistException;
 
 
 
-    public User addNewUser(String firstName, String lastName, String username,Long cin, String email, String password, UserRole role,Date birthDate,String city,Boolean gender, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, EmailExistException, UsernameExistException, IOException, NotAnImageFileException;
+    public User addNewUser(String firstName, String lastName, String username,String cin, String email, String password, UserRole role,Date birthDate,String city,Boolean gender, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, EmailExistException, UsernameExistException, IOException, NotAnImageFileException;
 
     /*
     UPDATE without UserRole!!!
      */
-    User updateUser(String currentUsername, String newFirstName, String newLastName, String newUsername, String newEmail,Long newCin,UserRole newRole,Date newbirthDate,String newCity,Boolean newGender, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException,CinExistException, IOException;
+    User updateUser(String currentUsername, String newFirstName, String newLastName, String newUsername, String newEmail,String newCin,UserRole newRole,Date newbirthDate,String newCity,Boolean newGender, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException,CinExistException, IOException;
 
     /*
     DELETEEEE
      */
     void deleteUser(String email) throws  UserNotFoundException;
-    void deleteUser(Integer id) throws  UserNotFoundException;
+    void deleteUser(Long id) throws  UserNotFoundException;
 
     //public void resetPassword(String email, String newPassword) throws MessagingException, EmailNotFoundException;
 

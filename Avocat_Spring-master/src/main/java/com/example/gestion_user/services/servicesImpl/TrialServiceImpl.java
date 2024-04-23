@@ -29,13 +29,13 @@ public class TrialServiceImpl implements TrialService {
     }
 
     @Override
-    public void deleteTrial(Integer idTrial) {
-        trialRepository.deleteById(idTrial);
+    public void deleteTrial(Long id) {
+        trialRepository.deleteById(id);
     }
 
     @Override
-    public Trial getTrialById(Integer idTrial) {
-        return trialRepository.findById(idTrial).get();
+    public Trial getTrialById(Long id) {
+        return trialRepository.findById(id).get();
     }
 
 }

@@ -1,6 +1,8 @@
 package com.example.gestion_user.services.servicesImpl;
 
 import com.example.gestion_user.entities.*;
+import com.example.gestion_user.exceptions.NotFoundException;
+import com.example.gestion_user.models.request.FolderDto;
 import com.example.gestion_user.repositories.FolderRepository;
 import com.example.gestion_user.services.FolderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,36 +16,53 @@ public class FolderServiceImpl implements FolderService {
     @Autowired
     private FolderRepository folderRepository;
 
+    @Override
+    public Folder addFolder(FolderDto f) {
+        Folder folder=new Folder();
+        folder.setName(f.getName());
+        folder.setStatus(f.getStatus());
+        try {
+            return folderRepository.save(folder) ;
+        } catch (Exception ex) {
+            throw new NotFoundException("Failed to create court: " + ex.getMessage());
+        }
+    }
+    @Override
+    public Folder updateFolder(Long id, FolderDto updatedFolderDto) {
+        // Find the existing Folder entity by ID
+        Folder existingFolder = folderRepository.findById(id)
+                .orElseThrow(() -> new NotFoundException("Folder not found with id: " + id));
 
+        // Update the fields of the existing Folder entity with values from the DTO
+        existingFolder.setName(updatedFolderDto.getName());
+        existingFolder.setStatus(updatedFolderDto.getStatus());
+
+        // Save the updated Folder entity
+        try {
+            return folderRepository.save(existingFolder);
+        } catch (Exception ex) {
+            throw new NotFoundException("Failed to update folder with id: " + id + ". " + ex.getMessage());
+        }
+    }
+
+    @Override
+    public void deleteFolder(Long idFolder) {
+        folderRepository.deleteById(idFolder);
+    }
     @Override
     public List<Folder> getFolders() {
         return folderRepository.findAll();
     }
 
-
-
-
     @Override
-    public Folder getFolderById(Integer idFolder) {
+    public Folder getFolderById(Long idFolder) {
         return( folderRepository.findById(idFolder).orElse(null));
     }
 
-    @Override
-    public Folder addFolder(Folder f) {
-        return folderRepository.save(f) ;
-    }
-    @Override
-    public Folder updateFolder(Folder c) {
-        return folderRepository.save(c);
-    }
 
-    @Override
-    public void deleteFolder(Integer idFolder) {
-        folderRepository.deleteById(idFolder);
-    }
 
     public Folder getFolderByName(String name) {
-        return folderRepository.getFolderByName(name);
+        return folderRepository.findByName(name);
     }
 
        /* @Override

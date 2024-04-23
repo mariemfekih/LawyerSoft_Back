@@ -3,6 +3,7 @@ package com.example.gestion_user.services;
 import com.example.gestion_user.entities.Case;
 import com.example.gestion_user.entities.Contributor;
 import com.example.gestion_user.entities.Trial;
+import com.example.gestion_user.models.request.CaseDto;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
@@ -10,17 +11,13 @@ import java.util.List;
 
 public interface CaseService {
 
-    Case addCase (Case c) ;
+    Case addCase (CaseDto c) ;
 
-    //public Affaire addAffaire(Affaire affaire, Integer idTribunal);
+    Case updateCase (Long idCase,CaseDto c) ;
 
+    void deleteCase (Long idCase) ;
     List<Case> getCases() ;
-
-    Case updateCase (Case c) ;
-
-    void deleteCase (Integer idCase) ;
-
-    Case getCaseById (Integer idCase);
+    Case getCaseById (Long idCase);
 
     public Case getCaseByTitle(String title);
 
@@ -28,12 +25,11 @@ public interface CaseService {
     /*
     * Relation Trials and Case
     * */
-    void addTrialToCase(Integer case_id, Trial trial) ;
-    List<Trial> getTrialsByCaseId(Integer caseId);
-    void deleteTrialFromCase(Integer caseId, Integer trialId);
-    void updateTrial(Integer caseId, Integer trialId, Trial updatedTrial);
+    void addTrialToCase(Long case_id, Trial trial) ;
+    List<Trial> getTrialsByCaseId(Long caseId);
+    void deleteTrialFromCase(Long caseId, Long trialId);
+    void updateTrial(Long caseId, Long trialId, Trial updatedTrial);
 
-    @Transactional
-        // Ensures database consistency across related operations
-    Case addContributorToCase(Integer caseId, Contributor contributor) throws EntityNotFoundException;
+
+    Case addContributorToCase(Long caseId, Contributor contributor);
 }

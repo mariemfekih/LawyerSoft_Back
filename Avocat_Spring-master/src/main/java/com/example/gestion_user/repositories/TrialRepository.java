@@ -5,7 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface TrialRepository extends JpaRepository<Trial, Integer> {
-    //List<Trial> findByCaseInstance_Id(Integer caseInstanceId);
+public interface TrialRepository extends JpaRepository<Trial, Long> {
 
 }

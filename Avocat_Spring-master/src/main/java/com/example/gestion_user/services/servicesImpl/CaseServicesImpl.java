@@ -1,5 +1,9 @@
 package com.example.gestion_user.services.servicesImpl;
 import com.example.gestion_user.entities.Contributor;
+import com.example.gestion_user.entities.enums.ContributorType;
+import com.example.gestion_user.exceptions.NotFoundException;
+import com.example.gestion_user.models.request.CaseDto;
+import com.example.gestion_user.repositories.ContributorRepository;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.gestion_user.entities.Case;
@@ -27,10 +31,41 @@ public class CaseServicesImpl implements CaseService {
 
     @Autowired
     CourtRepository courtRepository;
+    @Autowired
+    ContributorRepository contributorRepository;
 
    @Override
-    public Case addCase(Case c) {
-        return caseRepository.save(c) ;
+    public Case addCase(CaseDto c) {
+        Case case1= new Case();
+        case1.setTitle(c.getTitle());
+        case1.setDescription(c.getDescription());
+        case1.setCreationDate(c.getCreationDate());
+        case1.setClosingDate(c.getClosingDate());
+        case1.setType(c.getType());
+       try {
+           return caseRepository.save(case1);
+       } catch (Exception ex) {
+           throw new NotFoundException("Failed to create case: " + ex.getMessage());
+       }    }
+    @Override
+    public Case updateCase(Long id, CaseDto updatedCaseDto) {
+        // Find the existing Case entity by ID
+        Case existingCase = caseRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Case not found with id: " + id));
+
+        // Update the fields of the existing Case entity with values from the DTO
+        existingCase.setTitle(updatedCaseDto.getTitle());
+        existingCase.setDescription(updatedCaseDto.getDescription());
+        existingCase.setCreationDate(updatedCaseDto.getCreationDate());
+        existingCase.setClosingDate(updatedCaseDto.getClosingDate());
+        existingCase.setType(updatedCaseDto.getType());
+
+        // Save the updated Case entity
+        try {
+            return caseRepository.save(existingCase);
+        } catch (Exception ex) {
+            throw new NotFoundException("Failed to update case with id: " + id + ". " + ex.getMessage());
+        }
     }
 
     @Override
@@ -38,30 +73,27 @@ public class CaseServicesImpl implements CaseService {
         return caseRepository.findAll();
     }
 
-    @Override
-    public Case updateCase(Case c) {
-        return caseRepository.save(c);
-    }
+
 
     @Override
-    public void deleteCase(Integer idCase) {
+    public void deleteCase(Long idCase) {
         caseRepository.deleteById(idCase);
     }
 
     @Override
-    public Case getCaseById(Integer idCase) {
+    public Case getCaseById(Long idCase) {
         return caseRepository.findById(idCase).get() ;
     }
 
 
     @Override
     public Case getCaseByTitle(String title) {
-         return caseRepository.getCaseByTitle(title);
+         return caseRepository.findByTitle(title);
 
     }
 
     //PARTIE MTAA CASE W TRIAL
-    public void addTrialToCase(Integer case_id, Trial trial) {
+    public void addTrialToCase(Long case_id, Trial trial) {
         Optional<Case> optionalCase = caseRepository.findById(case_id);
         if (optionalCase.isPresent()) {
             Case caseInstance = optionalCase.get();
@@ -72,7 +104,7 @@ public class CaseServicesImpl implements CaseService {
             throw new EntityNotFoundException("Case not found with id: " + case_id);
         }
     }
-    public List<Trial> getTrialsByCaseId(Integer caseId) {
+    public List<Trial> getTrialsByCaseId(Long caseId) {
         Optional<Case> optionalCase = caseRepository.findById(caseId);
         if (optionalCase.isPresent()) {
             Case caseInstance = optionalCase.get();
@@ -82,14 +114,14 @@ public class CaseServicesImpl implements CaseService {
         }
     }
     @Transactional
-    public void deleteTrialFromCase(Integer caseId, Integer trialId) {
+    public void deleteTrialFromCase(Long caseId, Long trialId) {
         // Retrieve the case from the database
         Case foundCase = caseRepository.findById(caseId)
                 .orElseThrow(() -> new EntityNotFoundException("Case not found with id: " + caseId));
 
         // Retrieve the trial from the case's trials list
         Trial trialToRemove = foundCase.getTrials().stream()
-                .filter(trial -> trial.getIdTrial().equals(trialId))
+                .filter(trial -> trial.getId().equals(trialId))
                 .findFirst()
                 .orElseThrow(() -> new EntityNotFoundException("Trial not found with id: " + trialId));
 
@@ -101,7 +133,7 @@ public class CaseServicesImpl implements CaseService {
     }
 
 
-    public void updateTrial(Integer caseId, Integer trialId, Trial updatedTrial) {
+    public void updateTrial(Long caseId, Long trialId, Trial updatedTrial) {
         // Récupérer l'affaire associée à l'essai
         Case caseInstance = caseRepository.findById(caseId)
                 .orElseThrow(() -> new EntityNotFoundException("Affaire non trouvée avec l'identifiant : " + caseId));
@@ -127,18 +159,22 @@ public class CaseServicesImpl implements CaseService {
 //Contributor
 
 
-    @Override
+
+
+
+
+
+    ////////////
     @Transactional // Ensures database consistency across related operations
-    public Case addContributorToCase(Integer caseId, Contributor contributor) throws EntityNotFoundException {
+    public Case addContributorToCase(Long caseId, Contributor contributor) throws EntityNotFoundException {
         Optional<Case> optionalCase = caseRepository.findById(caseId);
         if (!optionalCase.isPresent()) {
             throw new EntityNotFoundException("Case not found with id: " + caseId);
         }
-
         Case existingCase = optionalCase.get();
         existingCase.getContributors().add(contributor); // Assuming 'contributors' is a Set or List in Case
-
         Case updatedCase = caseRepository.save(existingCase); // Save the updated case with the new contributor
         return updatedCase;
     }
+
 }

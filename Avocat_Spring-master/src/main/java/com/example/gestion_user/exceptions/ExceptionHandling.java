@@ -22,7 +22,7 @@ import java.util.Objects;
 import static org.springframework.http.HttpStatus.*;
 
 @RestControllerAdvice
-public class ExceptionHandling implements ErrorController {
+public class ExceptionHandling {
 
     private final Logger LOGGER = LoggerFactory.getLogger(getClass());
     private static final String ACCOUNT_LOCKED = "Your account has been locked. Please contact administration.";

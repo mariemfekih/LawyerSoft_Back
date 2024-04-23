@@ -64,7 +64,7 @@ public class UserController  {
     }
 
     @GetMapping("/getUserById/{id}")
-    public User getUserById(@PathVariable("id") Integer id) {
+    public User getUserById(@PathVariable("id") Long id) {
         return userService.getUserById(id);
     }
 
@@ -132,7 +132,7 @@ public class UserController  {
     public ResponseEntity<User> addNewUser(@RequestParam("firstName") String firstName,
                                            @RequestParam("lastName") String lastName,
                                            @RequestParam("username") String username,
-                                           @RequestParam("cin") Long cin,
+                                           @RequestParam("cin") String cin,
                                            @RequestParam("email") String email,
                                            @RequestParam("password") String password,
                                            @RequestParam("role") UserRole role,
@@ -153,7 +153,7 @@ public class UserController  {
                                        @RequestParam("lastName") String lastName,
                                        @RequestParam("username") String username,
                                        @RequestParam("email") String email,
-                                       @RequestParam("cin") Long cin,
+                                       @RequestParam("cin") String cin,
                                        @RequestParam("role") UserRole role,
                                        @RequestParam("birthDate") Date birthDate,
                                        @RequestParam("city") String city,
@@ -164,15 +164,18 @@ public class UserController  {
         return new ResponseEntity<>(updatedUser, OK);
     }
 
+    @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/deleteUser/{email}")
     @PreAuthorize("hasAnyAuthority('user:delete')")
     public ResponseEntity<HttpResponse> deleteUser(@PathVariable("email") String email) throws  UserNotFoundException {
         userService.deleteUser(email);
         return response(OK, USER_DELETED_SUCCESSFULLY);
     }
+
+    @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/deleteUser/{idUser}")
     @PreAuthorize("hasAnyAuthority('user:delete')")
-    public ResponseEntity<Void> deleteUser(@PathVariable("idUser") Integer idUser) throws UserNotFoundException {
+    public ResponseEntity<Void> deleteUser(@PathVariable("idUser") Long idUser) throws UserNotFoundException {
         userService.deleteUser(idUser);
         return ResponseEntity.noContent().build();
     }

@@ -5,6 +5,6 @@ import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.List;
 
-public interface ContributorRepository extends JpaRepository<Contributor, Integer> {
+public interface ContributorRepository extends JpaRepository<Contributor, Long> {
     List<Contributor> findByAuxiliary(Auxiliary auxiliary);
 }

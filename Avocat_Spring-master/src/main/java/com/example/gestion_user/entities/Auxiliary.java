@@ -14,12 +14,13 @@ import java.util.*;
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "auxiliaries")
 public class Auxiliary implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    private Integer idAuxiliary;
+    private Long id;
 
     @Column(nullable = false)
     private String firstName;
@@ -28,16 +29,16 @@ public class Auxiliary implements Serializable {
     private String lastName;
 
     @Column(nullable = false, unique = true)
-    private Long cin;
+    private String cin;
 
-    @Column(nullable = false)
+    @Column(nullable = false ,unique = true)
     private String email;
 
     @Column(nullable = false)
     private String job;
 
     @Column(nullable = false)
-    private Long phone;
+    private String phone;
 
     @Column(nullable = false)
     private String city;
@@ -46,8 +47,18 @@ public class Auxiliary implements Serializable {
     @Column(nullable = false)
     private Date birthDate;
 
-
 /*
+* Controle de sais
+* */
+public void setCin(String cin) {
+    if (cin != null && cin.length() == 8 && (cin.startsWith("0") || cin.startsWith("1"))) {
+        this.cin = cin;
+    } else {
+        throw new IllegalArgumentException("CIN must be exactly 8 characters long and start with 0 or 1");
+    }
+}
+
+    /*
 Auxiliary - appointment
  */
 @OneToMany(mappedBy = "auxiliary", cascade = CascadeType.ALL)

@@ -1,6 +1,8 @@
 package com.example.gestion_user.controllers;
 
+import com.example.gestion_user.entities.Court;
 import com.example.gestion_user.entities.Fee;
+import com.example.gestion_user.models.request.FeeDto;
 import com.example.gestion_user.services.FeeService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,38 +22,43 @@ public class FeeController {
     @Autowired
     FeeService feeService ;
 
-    @GetMapping("/getFees")
+
+
+    @PostMapping
+    public ResponseEntity<Fee> addFee(@RequestBody FeeDto a){
+        Fee fee = feeService.addFee(a);
+        return ResponseEntity.status(HttpStatus.CREATED).body(fee);
+    }
+
+    @PutMapping("/{id}")
+    public ResponseEntity<Fee> updateFee(@PathVariable Long id,@RequestBody FeeDto updatedFee){
+        Fee existingFee = feeService.getFeeById(id);
+        if (existingFee == null) {
+            return ResponseEntity.notFound().build();
+        }
+        Fee fee = feeService.updateFee(id,updatedFee);
+        return ResponseEntity.ok().body(fee);
+    }
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{fee-id}")
+    public ResponseEntity<Void> deleteFee(@PathVariable("fee-id") Long feeId) {
+        feeService.deleteFee(feeId);
+        return ResponseEntity.noContent().build();
+    }
+    @GetMapping
     public ResponseEntity<List<Fee>> getFees() {
         List<Fee> listFees = feeService.getFees();
         return ResponseEntity.ok().body(listFees);
     }
 
-    @GetMapping("/getFeeById/{fee-id}")
-    public ResponseEntity<Fee> getFeeById(@PathVariable("fee-id") Integer feeId){
+    @GetMapping("/{fee-id}")
+    public ResponseEntity<Fee> getFeeById(@PathVariable("fee-id") Long feeId){
         Fee f = feeService.getFeeById(feeId);
         if (f != null) {
             return ResponseEntity.ok().body(f);
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
-
-    @PostMapping("/addFee")
-    public ResponseEntity<Fee> addFee(@RequestBody Fee a){
-        Fee fee = feeService.addFee(a);
-        return ResponseEntity.status(HttpStatus.CREATED).body(fee);
-    }
-
-    @PutMapping("/updateFee")
-    public ResponseEntity<Fee> updateFee(@RequestBody Fee a){
-        Fee fee = feeService.updateFee(a);
-        return ResponseEntity.ok().body(fee);
-    }
-
-    @DeleteMapping("/removeFee/{fee-id}")
-    public ResponseEntity<Void> removeHonoraire(@PathVariable("fee-id") Integer feeId) {
-        feeService.deleteFee(feeId);
-        return ResponseEntity.noContent().build();
     }
 
     /*@PostMapping("/addHonnoraireAndAffectToAffaire/{affaire-id}")

@@ -1,17 +1,17 @@
 package com.example.gestion_user.services;
 
 import com.example.gestion_user.entities.File;
+import com.example.gestion_user.models.request.FileDto;
 
 import java.util.List;
 
 public interface FileService {
-    File addFile (File file) ;
+    File addFile (FileDto file) ;
+    File updateFile (Long id,FileDto file) ;
+
+    void deleteFile (Long idFile) ;
 
     List<File> getFiles() ;
 
-    File updateFile (File file) ;
-
-    void deleteFile (Integer idFile) ;
-
-    File getFileById (Integer idFile);
+    File getFileById (Long idFile);
 }

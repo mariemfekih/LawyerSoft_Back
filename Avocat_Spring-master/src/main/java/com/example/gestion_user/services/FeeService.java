@@ -1,20 +1,17 @@
 package com.example.gestion_user.services;
 
 import com.example.gestion_user.entities.Fee;
+import com.example.gestion_user.models.request.FeeDto;
 
 import java.util.List;
 
 public interface FeeService {
 
-    Fee addFee(Fee fee) ;
-
+    Fee addFee(FeeDto fee) ;
+    Fee updateFee (Long id , FeeDto fee) ;
+    void deleteFee (Long idFee) ;
     List<Fee> getFees() ;
-
-    Fee updateFee (Fee fee) ;
-
-    void deleteFee (Integer idFee) ;
-
-    Fee getFeeById (Integer idFee);
+    Fee getFeeById (Long idFee);
 
    // public void addHonoraireAndAffectToAffaire(Fee honoraire, Integer idAffaire);
 

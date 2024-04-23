@@ -3,12 +3,10 @@ package com.example.gestion_user.entities;
 
 import com.example.gestion_user.entities.enums.CaseType;
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
 import java.util.*;
 
@@ -16,15 +14,15 @@ import java.util.*;
 @Entity
 @NoArgsConstructor
 @AllArgsConstructor
-@Getter
-@Setter
+@Data
 @Table(name = "cases")
 public class Case implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idCase", nullable = false, updatable = false)
-    private Integer idCase;
+    @Column( nullable = false, updatable = false)
+    private Long id;
 
+    @NotBlank(message = "title is requires")
     @Column(nullable = false)
     private String title;
 

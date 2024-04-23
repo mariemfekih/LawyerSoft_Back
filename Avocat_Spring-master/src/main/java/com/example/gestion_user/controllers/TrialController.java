@@ -17,23 +17,9 @@ public class TrialController {
     @Autowired
     TrialService trialService;
 
-    @GetMapping("/getTrials")
-    public ResponseEntity<List<Trial>> getTrials() {
-        List<Trial> trials = trialService.getTrials();
-        return ResponseEntity.ok(trials);
-    }
 
-    @GetMapping("/getTrialById/{idTrial}")
-    public ResponseEntity<Trial> getTrialById(@PathVariable Integer idTrial) {
-        Trial trial = trialService.getTrialById(idTrial);
-        if (trial != null) {
-            return ResponseEntity.ok(trial);
-        } else {
-            return ResponseEntity.notFound().build();
-        }
-    }
 
-    @PostMapping("/addTrial")
+    @PostMapping
     public ResponseEntity<Trial> addTrial(@RequestBody Trial trial) {
         Trial addedTrial = trialService.addTrial(trial);
         return ResponseEntity.status(HttpStatus.CREATED).body(addedTrial);
@@ -45,10 +31,27 @@ public class TrialController {
         return ResponseEntity.ok(updatedTrial);
     }
 
-    @DeleteMapping("/deleteTrial/{idTrial}")
-    public ResponseEntity<Void> deleteTrial(@PathVariable Integer idTrial) {
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping(" /{idTrial}")
+    public ResponseEntity<Void> deleteTrial(@PathVariable Long idTrial) {
         trialService.deleteTrial(idTrial);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping
+    public ResponseEntity<List<Trial>> getTrials() {
+        List<Trial> trials = trialService.getTrials();
+        return ResponseEntity.ok(trials);
+    }
+
+    @GetMapping("/{idTrial}")
+    public ResponseEntity<Trial> getTrialById(@PathVariable Long idTrial) {
+        Trial trial = trialService.getTrialById(idTrial);
+        if (trial != null) {
+            return ResponseEntity.ok(trial);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
 }

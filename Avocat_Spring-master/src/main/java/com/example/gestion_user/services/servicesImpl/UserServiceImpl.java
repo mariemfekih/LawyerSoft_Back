@@ -55,7 +55,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.getUserByEmail(email);
+        User user = userRepository.findByEmail(email);
         if(user == null) {
             LOGGER.error(NO_USER_FOUND_BY_EMAIL + email);
             throw new UsernameNotFoundException(NO_USER_FOUND_BY_EMAIL + email);
@@ -69,26 +69,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             return userPrincipal;
         }
     }
-/* hedhy l shyhaaa meloul
- @Override
 
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = userRepository.findUserByUsername(username);
-        if(user == null) {
-            LOGGER.error(NO_USER_FOUND_BY_USERNAME + username);
-            throw new UsernameNotFoundException(NO_USER_FOUND_BY_USERNAME + username);
-        } else {
-            validateLoginAttempt(user);
-            user.setLastLoginDateDisplay(user.getLastLoginDate());
-            user.setLastLoginDate(new Date());
-            userRepository.save(user);
-            UserPrincipal userPrincipal = new UserPrincipal(user);
-            LOGGER.info(FOUND_USER_BY_USERNAME + username);
-            return userPrincipal;
-        }
-    }*/
     @Override
-    public User register(String firstName, String lastName, String username, Long cin, String email, String password, Date birthDate, String city, Boolean gender, UserRole role) throws UserNotFoundException, EmailExistException, UsernameExistException {
+    public User register(String firstName, String lastName, String username, String cin, String email, String password, Date birthDate, String city, Boolean gender, UserRole role) throws UserNotFoundException, EmailExistException, UsernameExistException {
         validateNewUsernameAndEmail(EMPTY, username, email);
         User user = new User();
         String encodedPassword = encodePassword(password);
@@ -113,7 +96,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User addNewUser(String firstName, String lastName, String username,Long cin, String email, String password, UserRole role,Date birthDate,String city,Boolean gender, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, EmailExistException, UsernameExistException, IOException, NotAnImageFileException {
+    public User addNewUser(String firstName, String lastName, String username,String cin, String email, String password, UserRole role,Date birthDate,String city,Boolean gender, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, EmailExistException, UsernameExistException, IOException, NotAnImageFileException {
         validateNewUsernameAndEmail(EMPTY, username, email);
         User user = new User();
         String encodedPassword = encodePassword(password);
@@ -139,7 +122,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User updateUser(String currentUsername, String newFirstName, String newLastName, String newUsername, String newEmail,Long newCin,UserRole newRole,Date newbirthDate,String newCity,Boolean newGender, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException {
+    public User updateUser(String currentUsername, String newFirstName, String newLastName, String newUsername, String newEmail,String newCin,UserRole newRole,Date newbirthDate,String newCity,Boolean newGender, boolean isNonLocked, boolean isActive) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException {
         User currentUser = validateNewUsernameAndEmail(currentUsername, newUsername, newEmail);
         currentUser.setFirstName(newFirstName);
         currentUser.setLastName(newLastName);
@@ -171,27 +154,27 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public User getUserByUsername(String username) {
-        return userRepository.getUserByUsername(username);
+        return userRepository.findByUsername(username);
     }
 
     @Override
     public User getUserByEmail(String email) {
-        return userRepository.getUserByEmail(email);
+        return userRepository.findByEmail(email);
     }
 
     @Override
-    public User getUserById(Integer id) {
+    public User getUserById(Long id) {
         return userRepository.getById(id);    }
 
     @Override
     public void deleteUser(String email) throws  UserNotFoundException {
-        User user = userRepository.getUserByEmail(email);
+        User user = userRepository.findByEmail(email);
         if (user == null) {
             throw new UserNotFoundException("User with email " + email + " not found");
         }
         userRepository.delete(user);
     }
-    public void deleteUser(Integer idUser) {
+    public void deleteUser(Long idUser) {
         userRepository.deleteById(idUser);
     }
 
@@ -281,8 +264,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Override
     public void addUserToCase(String email, String title){
-      Case case1 =caseRepository.getCaseByTitle(title);
-      User user=userRepository.getUserByEmail(email);
+      Case case1 =caseRepository.findByTitle(title);
+      User user=userRepository.findByEmail(email);
       case1.getUsers().add(user);
     }
 

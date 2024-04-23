@@ -1,23 +1,20 @@
 package com.example.gestion_user.entities;
 
 import com.example.gestion_user.entities.enums.ContributorType;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "contributors")
 public class Contributor implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    private Integer idContributor;
+    private Long id;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

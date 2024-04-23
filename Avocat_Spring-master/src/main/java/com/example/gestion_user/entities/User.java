@@ -9,19 +9,19 @@ import java.io.Serializable;
 import java.util.*;
 
 @Entity
-@Getter
-@Setter
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name = "users")
 public class User implements Serializable {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    private Integer id;
+    private Long id;
 
     @Column(nullable = false, unique=true , length = 8)
-    private Long cin;
+    private String cin;
 
     @Column(nullable = false)
     private String firstName;
@@ -63,6 +63,16 @@ public class User implements Serializable {
     private boolean isActive;
     private boolean isNotLocked;
 
+    /*
+     * Controle de sais
+     * */
+    public void setCin(String cin) {
+        if (cin != null && cin.length() == 8 && (cin.startsWith("0") || cin.startsWith("1"))) {
+            this.cin = cin;
+        } else {
+            throw new IllegalArgumentException("CIN must be exactly 8 characters long and start with 0 or 1");
+        }
+    }
     /*
      RELATION ENTRE User AND Fee
      */

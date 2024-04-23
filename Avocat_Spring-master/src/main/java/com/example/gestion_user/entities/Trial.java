@@ -1,23 +1,22 @@
 package com.example.gestion_user.entities;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotBlank;
 
 @Entity
-@Getter
-@Setter
+@Data
 @AllArgsConstructor
 @NoArgsConstructor
+@Table(name = "trials")
 public class Trial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "idTrial", nullable = false, updatable = false)
-    private Integer idTrial;
+    @Column( nullable = false, updatable = false)
+    private Long id;
 
+    @NotBlank(message = "title is requires")
     @Column(nullable = false)
     private String title;
 
