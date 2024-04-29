@@ -1,9 +1,12 @@
 package com.example.gestion_user.controllers;
 
+import com.example.gestion_user.entities.Case;
 import com.example.gestion_user.entities.User;
 import com.example.gestion_user.entities.UserPrincipal;
 import com.example.gestion_user.entities.enums.UserRole;
 import com.example.gestion_user.exceptions.*;
+import com.example.gestion_user.models.request.CaseDto;
+import com.example.gestion_user.models.request.UserDto;
 import com.example.gestion_user.repositories.UserRepository;
 //import com.example.gestion_user.security.JWTTokenProvider;
 import com.example.gestion_user.security.JWTTokenProvider;
@@ -51,6 +54,33 @@ public class UserController  {
 
     @Autowired
     private UserRepository userRepository;
+
+
+    @PostMapping
+    public ResponseEntity<User> addUser(@RequestBody UserDto u) {
+        User addedUser = userService.addUser(u);
+        return ResponseEntity.status(HttpStatus.CREATED).body(addedUser);
+    }
+
+    /*
+     * Update Case
+     */
+    @PutMapping("/{idUser}")
+    public ResponseEntity<User> updateUser(@PathVariable Long idUser, @RequestBody UserDto updatedUserDto) {
+        User existingUser = userService.getUserById(idUser);
+
+        if (existingUser == null) {
+            // If the User doesn't exist, return a 404 Not Found response
+            return ResponseEntity.notFound().build();
+        }
+        User updatedUser = userService.updateUser(idUser, updatedUserDto);
+        // Return the updated User with a 200 OK status
+        return ResponseEntity.ok(updatedUser);
+    }
+
+
+
+
 
     @GetMapping("/getUserByUsername/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable("username") String username) {
@@ -129,7 +159,7 @@ public class UserController  {
    }
 
    @PostMapping("/addUser")
-    public ResponseEntity<User> addNewUser(@RequestParam("firstName") String firstName,
+    public ResponseEntity<User> addUser(@RequestParam("firstName") String firstName,
                                            @RequestParam("lastName") String lastName,
                                            @RequestParam("username") String username,
                                            @RequestParam("cin") String cin,
@@ -142,27 +172,12 @@ public class UserController  {
                                            @RequestParam("isNonLocked") String isNonLocked,
                                            @RequestParam("isActive") String isActive,
                                            @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) throws UserNotFoundException, EmailExistException, IOException, UsernameExistException, NotAnImageFileException {
-        User newUser = userService.addNewUser(firstName, lastName,username,cin, email,password, role,birthDate,city,Boolean.parseBoolean(gender),
+        User newUser = userService.addUser(firstName, lastName,username,cin, email,password, role,birthDate,city,Boolean.parseBoolean(gender),
                 Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive), profileImage);
         return new ResponseEntity<>(newUser, OK);
    }
 
-    @PostMapping("/updateUser")
-    public ResponseEntity<User> update(@RequestParam("currentUsername") String currentUsername,
-                                       @RequestParam("firstName") String firstName,
-                                       @RequestParam("lastName") String lastName,
-                                       @RequestParam("username") String username,
-                                       @RequestParam("email") String email,
-                                       @RequestParam("cin") String cin,
-                                       @RequestParam("role") UserRole role,
-                                       @RequestParam("birthDate") Date birthDate,
-                                       @RequestParam("city") String city,
-                                       @RequestParam("gender") String gender,
-                                       @RequestParam("isActive") String isActive,
-                                       @RequestParam("isNonLocked") String isNonLocked) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, CinExistException {
-        User updatedUser = userService.updateUser(currentUsername, firstName, lastName, username,email, cin,role,birthDate,city,Boolean.parseBoolean(gender), Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive));
-        return new ResponseEntity<>(updatedUser, OK);
-    }
+
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/deleteUser/{email}")

@@ -1,6 +1,7 @@
 package com.example.gestion_user.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -20,7 +21,7 @@ public class Auxiliary implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    private Long id;
+    private Long idAuxiliary;
 
     @Column(nullable = false)
     private String firstName;
@@ -62,11 +63,13 @@ public void setCin(String cin) {
 Auxiliary - appointment
  */
 @OneToMany(mappedBy = "auxiliary", cascade = CascadeType.ALL)
+@JsonIgnore
 private Set<Appointment> appointments;
 
 
 
     @OneToMany(mappedBy = "auxiliary", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<Contributor> contributors;
 
 }

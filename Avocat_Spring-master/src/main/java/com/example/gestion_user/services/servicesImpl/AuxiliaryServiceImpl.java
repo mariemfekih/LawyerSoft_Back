@@ -69,12 +69,12 @@ public class AuxiliaryServiceImpl implements AuxiliaryService {
     public Auxiliary getAuxiliaryById(Long idAuxiliary) {
         return auxiliaryRepository.findById(idAuxiliary).get();
     }
-    @Override
+   /* @Override
     public Auxiliary getAuxiliaryByCin(String cin) {
         return auxiliaryRepository.findByCin(cin);
     }
     public Auxiliary getAuxiliaryByEmail(String email) {
         return auxiliaryRepository.findByEmail(email);
-    }
+    }*/
 
 }

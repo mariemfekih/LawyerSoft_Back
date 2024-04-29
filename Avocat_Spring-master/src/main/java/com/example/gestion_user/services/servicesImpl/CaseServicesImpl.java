@@ -1,16 +1,15 @@
 package com.example.gestion_user.services.servicesImpl;
+import com.example.gestion_user.entities.Auxiliary;
 import com.example.gestion_user.entities.Contributor;
 import com.example.gestion_user.entities.enums.ContributorType;
 import com.example.gestion_user.exceptions.NotFoundException;
 import com.example.gestion_user.models.request.CaseDto;
-import com.example.gestion_user.repositories.ContributorRepository;
+import com.example.gestion_user.models.request.ContributorDto;
+import com.example.gestion_user.repositories.*;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.example.gestion_user.entities.Case;
 import com.example.gestion_user.entities.Trial;
-import com.example.gestion_user.repositories.CaseRepository;
-import com.example.gestion_user.repositories.CourtRepository;
-import com.example.gestion_user.repositories.TrialRepository;
 import com.example.gestion_user.services.CaseService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.springframework.stereotype.Service;
 import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @AllArgsConstructor
 @Service
@@ -28,7 +28,8 @@ public class CaseServicesImpl implements CaseService {
     CaseRepository caseRepository;
     @Autowired
     TrialRepository trialRepository;
-
+@Autowired
+    AuxiliaryRepository auxiliaryRepository;
     @Autowired
     CourtRepository courtRepository;
     @Autowired
@@ -86,11 +87,11 @@ public class CaseServicesImpl implements CaseService {
     }
 
 
-    @Override
+  /*  @Override
     public Case getCaseByTitle(String title) {
          return caseRepository.findByTitle(title);
 
-    }
+    }*/
 
     //PARTIE MTAA CASE W TRIAL
     public void addTrialToCase(Long case_id, Trial trial) {
@@ -99,11 +100,14 @@ public class CaseServicesImpl implements CaseService {
             Case caseInstance = optionalCase.get();
             trial.setCaseInstance(caseInstance); // Associate the trial with the case
             caseInstance.getTrials().add(trial); // Add the trial to the case's list of trials
-            caseRepository.save(caseInstance); // Save the changes to the case (including the new trial)
+            // Save both the case and the trial entities
+            caseRepository.save(caseInstance);
+            trialRepository.save(trial);
         } else {
             throw new EntityNotFoundException("Case not found with id: " + case_id);
         }
     }
+
     public List<Trial> getTrialsByCaseId(Long caseId) {
         Optional<Case> optionalCase = caseRepository.findById(caseId);
         if (optionalCase.isPresent()) {
@@ -113,23 +117,28 @@ public class CaseServicesImpl implements CaseService {
             throw new EntityNotFoundException("Case not found with id: " + caseId);
         }
     }
-    @Transactional
     public void deleteTrialFromCase(Long caseId, Long trialId) {
-        // Retrieve the case from the database
-        Case foundCase = caseRepository.findById(caseId)
+        // Retrieve the case associated with the trial
+        Case caseInstance = caseRepository.findById(caseId)
                 .orElseThrow(() -> new EntityNotFoundException("Case not found with id: " + caseId));
 
-        // Retrieve the trial from the case's trials list
-        Trial trialToRemove = foundCase.getTrials().stream()
-                .filter(trial -> trial.getId().equals(trialId))
-                .findFirst()
+        // Retrieve the trial to be deleted
+        Trial trialToDelete = trialRepository.findById(trialId)
                 .orElseThrow(() -> new EntityNotFoundException("Trial not found with id: " + trialId));
 
-        // Remove the trial from the case's trials list
-        foundCase.getTrials().remove(trialToRemove);
+        // Verify if the trial belongs to the specified case
+        if (!caseInstance.getTrials().contains(trialToDelete)) {
+            throw new IllegalArgumentException("The specified trial does not belong to the specified case.");
+        }
 
-        // Save the updated case (no need for separate check on removal here)
-        caseRepository.save(foundCase);
+        // Remove the trial from the case's list of trials
+        caseInstance.getTrials().remove(trialToDelete);
+
+        // Save the updated case (without the trial)
+        caseRepository.save(caseInstance);
+
+        // Delete the trial entity (optional, depending on your data persistence strategy)
+        trialRepository.delete(trialToDelete);
     }
 
 
@@ -165,16 +174,42 @@ public class CaseServicesImpl implements CaseService {
 
 
     ////////////
-    @Transactional // Ensures database consistency across related operations
-    public Case addContributorToCase(Long caseId, Contributor contributor) throws EntityNotFoundException {
-        Optional<Case> optionalCase = caseRepository.findById(caseId);
-        if (!optionalCase.isPresent()) {
-            throw new EntityNotFoundException("Case not found with id: " + caseId);
+    // CaseController.java
+
+    @Override
+    public void addContributorToCase(Long caseId, ContributorDto contributorDTO) {
+        // Find the case by ID
+        Case caseInstance = caseRepository.findById(caseId)
+                .orElseThrow(() -> new EntityNotFoundException("Case not found with id: " + caseId));
+
+        // Create a new contributor
+        Contributor contributor = new Contributor();
+        contributor.setType(contributorDTO.getType());
+        contributor.setCases(caseInstance);
+
+        // Set the auxiliary if provided
+        if (contributorDTO.getIdAuxiliary() != null) {
+            // Find auxiliary by ID
+            Auxiliary auxiliary = auxiliaryRepository.findById(contributorDTO.getIdAuxiliary())
+                    .orElseThrow(() -> new EntityNotFoundException("Auxiliary not found with id: " + contributorDTO.getIdAuxiliary()));
+            contributor.setAuxiliary(auxiliary);
         }
-        Case existingCase = optionalCase.get();
-        existingCase.getContributors().add(contributor); // Assuming 'contributors' is a Set or List in Case
-        Case updatedCase = caseRepository.save(existingCase); // Save the updated case with the new contributor
-        return updatedCase;
+
+        // Save the contributor
+        contributorRepository.save(contributor);
     }
+
+    @Override
+    public List<Contributor> getContributorsByCaseId(Long caseId) {
+        // Retrieve the case by ID
+        Case caseInstance = caseRepository.findById(caseId)
+                .orElseThrow(() -> new EntityNotFoundException("Case not found with id: " + caseId));
+
+        // Return the list of contributors for the case
+        return caseInstance.getContributors();
+    }
+
+
+
 
 }

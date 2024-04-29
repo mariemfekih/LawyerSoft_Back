@@ -14,7 +14,7 @@ public class Trial {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column( nullable = false, updatable = false)
-    private Long id;
+    private Long idTrial;
 
     @NotBlank(message = "title is requires")
     @Column(nullable = false)

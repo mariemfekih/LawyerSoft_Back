@@ -4,7 +4,9 @@ import com.example.gestion_user.entities.Auxiliary;
 import com.example.gestion_user.entities.Case;
 import com.example.gestion_user.entities.Contributor;  // Added import statement for Contributor
 import com.example.gestion_user.entities.Trial;
+import com.example.gestion_user.entities.enums.ContributorType;
 import com.example.gestion_user.models.request.CaseDto;
+import com.example.gestion_user.models.request.ContributorDto;
 import com.example.gestion_user.services.CaseService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,7 +78,7 @@ public class CaseController {
         }
     }
 
-    @GetMapping("/{title}")
+  /*  @GetMapping("/{title}")
     public ResponseEntity<Case> getCaseByTitle(@PathVariable("title") String title) {
         Case casetitle = caseService.getCaseByTitle(title);
         if (casetitle != null) {
@@ -84,7 +86,7 @@ public class CaseController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
+    }*/
 
 
     ///////////////Add trial to case:
@@ -92,6 +94,7 @@ public class CaseController {
     public ResponseEntity<?> addTrialToCase(@PathVariable Long case_id, @RequestBody Trial trial) {
         try {
             caseService.addTrialToCase(case_id, trial);
+            logger.info("trial added");
             return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -103,6 +106,7 @@ public class CaseController {
     public ResponseEntity<Trial> updateTrial(@PathVariable Long caseId, @PathVariable Long trialId, @RequestBody Trial updatedTrial) {
         try {
             caseService.updateTrial(caseId, trialId, updatedTrial);
+            logger.info("trial"+trialId+" updated");
             return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
@@ -114,20 +118,17 @@ public class CaseController {
     }
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{caseId}/deleteTrial/{trialId}")
-    public ResponseEntity<Void> deleteTrialFromCase(@PathVariable Long caseId, @PathVariable Long trialId) {
+    public ResponseEntity<?> deleteTrial(@PathVariable Long caseId, @PathVariable Long trialId) {
         try {
             caseService.deleteTrialFromCase(caseId, trialId);
-            logger.info("khedmeeet");
-            return ResponseEntity.noContent().build();
+            logger.info("trial"+trialId+" deleted");
+            return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            // Log the exception for debugging purposes
-            logger.error("An error occurred while deleting trial from case", e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting trial from case: " + e.getMessage());
         }
     }
-
     @GetMapping("/{caseId}/getTrials")
     public ResponseEntity<List<Trial>> getTrialsByCaseId(@PathVariable Long caseId) {
         List<Trial> trials = caseService.getTrialsByCaseId(caseId);
@@ -137,35 +138,32 @@ public class CaseController {
 
 
 
-   /* @PostMapping("/{caseId}/addContributor")
-    public ResponseEntity<?> addContributoreToCas(@PathVariable Integer caseId, @RequestBody Contributor contributor) {
+    // CaseController.java
+    @PostMapping("/{caseId}/addContributor")
+    public ResponseEntity<?> addContributorToCase(@PathVariable Long caseId, @RequestBody ContributorDto contributorDto) {
         try {
-            Case updatedCase = caseService.addContributorToCase(caseId, contributor);
-            return ResponseEntity.ok(updatedCase); // Return the updated case with the added contributor
+            // Call the service method passing the case ID and contributor DTO
+            caseService.addContributorToCase(caseId, contributorDto);
+            return ResponseEntity.ok().build();
         } catch (EntityNotFoundException e) {
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding contributor to case: " + e.getMessage());
         }
-    }*/
+    }
 
-    // CaseController.java
-    @PostMapping("/{caseId}/addContributor")
-    public ResponseEntity<Case> addContributorToCase(@PathVariable Long caseId, @RequestBody Contributor contributor) {
+    @GetMapping("/{caseId}/contributors")
+    public ResponseEntity<List<Contributor>> getContributorsByCaseId(@PathVariable Long caseId) {
         try {
-            Case updatedCase = caseService.addContributorToCase(caseId, contributor);
-            return ResponseEntity.ok(updatedCase); // Return the updated case with the added contributor
+            List<Contributor> contributors = caseService.getContributorsByCaseId(caseId);
+            return ResponseEntity.ok(contributors);
         } catch (EntityNotFoundException e) {
-            // Return 404 Not Found if the case is not found
             return ResponseEntity.notFound().build();
         } catch (Exception e) {
-            // Log the error for debugging purposes
-            logger.error("Error adding contributor to case: {}", e.getMessage(), e);
-
-            // Return 500 Internal Server Error with an error message
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
 
+    }
 
-}
+

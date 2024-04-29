@@ -2,6 +2,7 @@ package com.example.gestion_user.entities;
 
 
 import com.example.gestion_user.entities.enums.CaseType;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
@@ -20,7 +21,7 @@ public class Case implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column( nullable = false, updatable = false)
-    private Long id;
+    private Long idCase;
 
     @NotBlank(message = "title is requires")
     @Column(nullable = false)
@@ -30,10 +31,14 @@ public class Case implements Serializable {
     private String description;
 
     @Column(nullable = false)
-    private String creationDate;
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private Date creationDate;
 
     @Column(nullable = false)
-    private String closingDate;
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private Date closingDate;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -51,6 +56,7 @@ public class Case implements Serializable {
    RELATION ENTRE CASE AND FOLDERS
    */
     @OneToMany(mappedBy = "caseInstance", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Folder> folders;
 
     /*
@@ -63,7 +69,8 @@ Relation entre User et Case
 case-contributor
  */
     @OneToMany(mappedBy = "cases", cascade = CascadeType.ALL)
-    private Set<Contributor> contributors;
+    @JsonIgnore
+    private List<Contributor> contributors;
 
 
 

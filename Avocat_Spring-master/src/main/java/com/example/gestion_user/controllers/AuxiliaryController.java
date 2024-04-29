@@ -53,16 +53,17 @@ public class AuxiliaryController {
         return ResponseEntity.ok(auxiliaries);
     }
 
-    @GetMapping("/{idAuxiliary}")
-    public ResponseEntity<Auxiliary> getAuxiliaryById(@PathVariable Long idAuxiliary) {
-        Auxiliary a = auxiliaryService.getAuxiliaryById(idAuxiliary);
+    @GetMapping("/{id}")
+    public ResponseEntity<Auxiliary> getAuxiliaryById(@PathVariable Long id) {
+        Auxiliary a = auxiliaryService.getAuxiliaryById(id);
         if (a != null) {
             return ResponseEntity.ok(a);
         } else {
             return ResponseEntity.notFound().build();
         }
     }
-    @GetMapping("/{cin}")
+
+   /* @GetMapping("/{cin}")
     public ResponseEntity<Auxiliary> getAuxiliaryByCin(@PathVariable String cin) {
         Auxiliary a = auxiliaryService.getAuxiliaryByCin(cin);
         if (a != null) {
@@ -79,5 +80,5 @@ public class AuxiliaryController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }
+    }*/
 }

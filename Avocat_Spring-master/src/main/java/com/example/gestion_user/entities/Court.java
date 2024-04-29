@@ -17,7 +17,7 @@ public class Court implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    private Long id ;
+    private Long idCourt ;
 
     @Column(nullable = false)
     private String adress;

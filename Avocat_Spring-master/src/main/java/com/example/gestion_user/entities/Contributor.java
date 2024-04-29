@@ -14,7 +14,7 @@ public class Contributor implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    private Long id;
+    private Long idContributor;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)

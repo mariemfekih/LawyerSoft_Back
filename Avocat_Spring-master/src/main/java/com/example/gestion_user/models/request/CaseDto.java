@@ -7,6 +7,8 @@ import lombok.NoArgsConstructor;
 
 
 import javax.validation.constraints.NotBlank;
+import java.util.Date;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
@@ -17,9 +19,9 @@ public class CaseDto {
 
     private String description;
 
-    private String creationDate;
+    private Date creationDate;
 
-    private String closingDate;
+    private Date closingDate;
 
     private CaseType type;
 }

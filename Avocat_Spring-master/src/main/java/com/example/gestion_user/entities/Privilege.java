@@ -15,7 +15,7 @@ public class Privilege {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    private Long id;
+    private Long idPrivilege;
 
     @Column(nullable = false)
     private String name;

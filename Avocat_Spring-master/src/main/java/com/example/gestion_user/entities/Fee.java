@@ -18,7 +18,7 @@ public class Fee implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    private Integer id ;
+    private Integer idFee ;
 
     @NotBlank
     @Column(nullable = false, unique = true)

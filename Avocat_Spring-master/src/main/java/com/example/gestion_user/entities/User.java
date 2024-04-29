@@ -2,6 +2,7 @@ package com.example.gestion_user.entities;
 
 import com.example.gestion_user.entities.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -13,6 +14,7 @@ import java.util.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Table(name = "users")
+
 public class User implements Serializable {
 
     @Id
@@ -77,16 +79,20 @@ public class User implements Serializable {
      RELATION ENTRE User AND Fee
      */
     @OneToMany(mappedBy = "userInstance", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Fee> fees;
     /*
     Relation entre User et Case
     */
     @ManyToMany(mappedBy="users")
+    @JsonIgnore
     private List<Case> cases ;
     /*
     Relation entre User et Privilege
     */
+
     @ManyToMany(mappedBy="users")
+    @JsonIgnore
     private List<Privilege> privileges ;
 
 
@@ -94,6 +100,7 @@ public class User implements Serializable {
 user-appointment
  */
     @OneToMany(mappedBy = "user")
+    @JsonIgnore
     private Set<Appointment> appointments;
 
 

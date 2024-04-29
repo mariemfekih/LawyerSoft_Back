@@ -18,7 +18,7 @@ public class File implements Serializable {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    private Long id;
+    private Long idFile;
 
     @Column(nullable = false)
     @NotBlank

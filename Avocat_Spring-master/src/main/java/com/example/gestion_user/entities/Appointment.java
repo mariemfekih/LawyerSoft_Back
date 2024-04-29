@@ -18,9 +18,9 @@ public class Appointment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(nullable = false, updatable = false)
-    private Long id ;
+    private Long idAppointment ;
 
-    @NotBlank(message = "title is requires")
+    @NotBlank(message = "title is required")
     @Column(nullable = false)
     private String title;
 
@@ -29,17 +29,20 @@ public class Appointment {
 
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date beginningDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd  HH:mm:ss")
+    private Date startTime;
 
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date endingDate;
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd  HH:mm:ss")
+    private Date endTime;
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
     private AppointmentType type;
+
+    @Column(nullable = false,unique = true)
+    private String link;
 
     @Column(nullable = false)
     private String location;

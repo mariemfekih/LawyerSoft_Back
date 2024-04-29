@@ -3,7 +3,9 @@ package com.example.gestion_user.services;
 import com.example.gestion_user.entities.Case;
 import com.example.gestion_user.entities.Contributor;
 import com.example.gestion_user.entities.Trial;
+import com.example.gestion_user.entities.enums.ContributorType;
 import com.example.gestion_user.models.request.CaseDto;
+import com.example.gestion_user.models.request.ContributorDto;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.persistence.EntityNotFoundException;
@@ -19,7 +21,7 @@ public interface CaseService {
     List<Case> getCases() ;
     Case getCaseById (Long idCase);
 
-    public Case getCaseByTitle(String title);
+   // public Case getCaseByTitle(String title);
 
 
     /*
@@ -31,5 +33,6 @@ public interface CaseService {
     void updateTrial(Long caseId, Long trialId, Trial updatedTrial);
 
 
-    Case addContributorToCase(Long caseId, Contributor contributor);
+    void addContributorToCase(Long caseId, ContributorDto contributorDTO);
+    List<Contributor> getContributorsByCaseId(Long caseId);
 }

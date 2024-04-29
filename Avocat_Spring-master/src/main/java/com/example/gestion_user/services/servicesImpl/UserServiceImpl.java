@@ -4,6 +4,7 @@ import com.example.gestion_user.entities.*;
 import com.example.gestion_user.entities.enums.Role;
 import com.example.gestion_user.entities.enums.UserRole;
 import com.example.gestion_user.exceptions.*;
+import com.example.gestion_user.models.request.UserDto;
 import com.example.gestion_user.repositories.CaseRepository;
 import com.example.gestion_user.repositories.UserRepository;
 //import com.example.gestion_user.security.LoginAttemptService;
@@ -96,7 +97,47 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     }
 
     @Override
-    public User addNewUser(String firstName, String lastName, String username,String cin, String email, String password, UserRole role,Date birthDate,String city,Boolean gender, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, EmailExistException, UsernameExistException, IOException, NotAnImageFileException {
+    public User addUser(UserDto u){
+        User user= new User();
+        user.setFirstName(u.getFirstName());
+        user.setLastName(u.getLastName());
+        user.setUsername(u.getUsername());
+        user.setEmail(u.getEmail());
+        user.setCity(u.getCity());
+        user.setCin(u.getCin());
+        user.setRole(u.getRole());
+        user.setGender(u.getGender());
+        user.setActive(true);
+        user.setNotLocked(true);
+        try {
+            return userRepository.save(user);
+        } catch (Exception ex) {
+            throw new NotFoundException("Failed to create user: " + ex.getMessage());
+        }
+    }
+    @Override
+    public User updateUser(Long id, UserDto updatedUserDto) {
+        // Find the existing User entity by ID
+        User existingUser = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found with id: " + id));
+        // Update the fields of the existing User entity with values from the DTO
+        existingUser.setFirstName(updatedUserDto.getFirstName());
+        existingUser.setLastName(updatedUserDto.getLastName());
+        existingUser.setUsername(updatedUserDto.getUsername());
+        existingUser.setEmail(updatedUserDto.getEmail());
+        existingUser.setCity(updatedUserDto.getCity());
+        existingUser.setCin(updatedUserDto.getCin());
+        existingUser.setRole(updatedUserDto.getRole());
+        existingUser.setGender(updatedUserDto.getGender());
+                try {
+            return userRepository.save(existingUser);
+        } catch (Exception ex) {
+            throw new NotFoundException("Failed to update user with id: " + id + ". " + ex.getMessage());
+        }
+    }
+
+
+    @Override
+    public User addUser(String firstName, String lastName, String username,String cin, String email, String password, UserRole role,Date birthDate,String city,Boolean gender, boolean isNonLocked, boolean isActive, MultipartFile profileImage) throws UserNotFoundException, EmailExistException, UsernameExistException, IOException, NotAnImageFileException {
         validateNewUsernameAndEmail(EMPTY, username, email);
         User user = new User();
         String encodedPassword = encodePassword(password);
