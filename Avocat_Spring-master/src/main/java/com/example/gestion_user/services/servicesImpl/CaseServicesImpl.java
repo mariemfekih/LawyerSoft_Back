@@ -210,6 +210,22 @@ public class CaseServicesImpl implements CaseService {
     }
 
 
+    public void deleteContributorFromCase(Long caseId, Long contributorId) {
+        Case caseInstance = caseRepository.findById(caseId)
+                .orElseThrow(() -> new EntityNotFoundException("Case not found with id: " + caseId));
+
+        Contributor contributorToDelete = contributorRepository.findById(contributorId)
+                .orElseThrow(() -> new EntityNotFoundException("Contributor not found with id: " + contributorId));
+
+        // Verify if the contributor belongs to the specified case
+        if (!caseInstance.getContributors().contains(contributorToDelete)) {
+            throw new IllegalArgumentException("The specified Contributor does not belong to the specified case.");
+        }
+        caseInstance.getContributors().remove(contributorToDelete);
+        caseRepository.save(caseInstance);
+        contributorRepository.delete(contributorToDelete);
+    }
+
 
 
 }

@@ -1,14 +1,18 @@
 package com.example.gestion_user.controllers;
 
 import com.example.gestion_user.entities.Auxiliary;
+import com.example.gestion_user.entities.report.Report;
+import com.example.gestion_user.entities.report.StringResult;
 import com.example.gestion_user.models.request.AuxiliaryDto;
 import com.example.gestion_user.services.AuxiliaryService;
+import com.example.gestion_user.services.JasperReportService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.sql.SQLException;
 import java.util.List;
 
 @AllArgsConstructor
@@ -17,6 +21,7 @@ import java.util.List;
 public class AuxiliaryController {
     @Autowired
     AuxiliaryService auxiliaryService;
+    private JasperReportService jasperReportService;
 
     @PostMapping
     public ResponseEntity<Auxiliary> addAuxiliary(@RequestBody AuxiliaryDto a) {
@@ -63,7 +68,7 @@ public class AuxiliaryController {
         }
     }
 
-   /* @GetMapping("/{cin}")
+    @GetMapping("/cin/{cin}")
     public ResponseEntity<Auxiliary> getAuxiliaryByCin(@PathVariable String cin) {
         Auxiliary a = auxiliaryService.getAuxiliaryByCin(cin);
         if (a != null) {
@@ -72,7 +77,7 @@ public class AuxiliaryController {
             return ResponseEntity.notFound().build();
         }
     }
-    @GetMapping("/{email}")
+    @GetMapping("/email/{email}")
     public ResponseEntity<Auxiliary> getAuxiliaryByEmail(@PathVariable String email) {
         Auxiliary a = auxiliaryService.getAuxiliaryByEmail(email);
         if (a != null) {
@@ -80,5 +85,14 @@ public class AuxiliaryController {
         } else {
             return ResponseEntity.notFound().build();
         }
-    }*/
+    }
+
+    @PostMapping("/printAuxiliary")
+    public StringResult printAuxiliary(@RequestBody Report report) {
+        StringResult reportName=null;
+        try{
+            reportName=this.jasperReportService.createReport(report);
+        }catch(SQLException e){ e.printStackTrace();}
+        return reportName;
+    }
 }

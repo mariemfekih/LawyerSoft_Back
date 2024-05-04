@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.0.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="CasesReport" pageWidth="595" pageHeight="842" orientation="Landscape" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="96c05d1d-fc63-4eac-9448-2d80e34e48eb">
+	<queryString language="SQL">
+		<![CDATA[SELECT * FROM cases]]>
+	</queryString>
+	<field name="idCase" class="java.lang.Long"/>
+	<field name="title" class="java.lang.String"/>
+	<field name="description" class="java.lang.String"/>
+	<field name="creationDate" class="java.util.Date"/>
+	<field name="closingDate" class="java.util.Date"/>
+	<field name="type" class="com.example.gestion_user.entities.enums.CaseType"/>
+	<title>
+		<band height="89" splitType="Stretch">
+			<staticText>
+				<reportElement x="180" y="30" width="230" height="40" uuid="b2a72974-7052-49c2-92ba-727a6fad0115"/>
+				<textElement>
+					<font fontName="Times New Roman" size="24"/>
+				</textElement>
+				<text><![CDATA[Liste des affaires]]></text>
+			</staticText>
+		</band>
+	</title>
+	<columnHeader>
+		<band height="40">
+			<staticText>
+				<reportElement x="10" y="10" width="90" height="20" uuid="2c759293-fab9-4851-882b-424a4e973f70"/>
+				<text><![CDATA[Titre]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="110" y="10" width="140" height="20" uuid="5c4f4c84-56c5-4f91-aa13-306493d34c2e"/>
+				<text><![CDATA[Description]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="260" y="10" width="90" height="20" uuid="a74b2224-3c31-46c0-88d6-431d3e3b4a17"/>
+				<text><![CDATA[Date de création]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="360" y="10" width="100" height="20" uuid="2a44a6dc-6e4f-4d2e-9fcf-16e37276d68e"/>
+				<text><![CDATA[Date de clôture]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="470" y="10" width="74" height="20" uuid="a7cb46b2-0c2e-471d-8827-1f09cc1e48f4"/>
+				<text><![CDATA[Type]]></text>
+			</staticText>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="20">
+			<textField>
+				<reportElement x="10" y="0" width="90" height="20" uuid="2c759293-fab9-4851-882b-424a4e973f70"/>
+				<textFieldExpression><![CDATA[$F{title}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="110" y="0" width="140" height="20" uuid="5c4f4c84-56c5-4f91-aa13-306493d34c2e"/>
+				<textFieldExpression><![CDATA[$F{description}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="260" y="0" width="90" height="20" uuid="a74b2224-3c31-46c0-88d6-431d3e3b4a17"/>
+				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("yyyy-MM-dd").format($F{creationDate})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="360" y="0" width="100" height="20" uuid="2a44a6dc-6e4f-4d2e-9fcf-16e37276d68e"/>
+				<textFieldExpression><![CDATA[new java.text.SimpleDateFormat("yyyy-MM-dd").format($F{closingDate})]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="470" y="0" width="74" height="20" uuid="a7cb46b2-0c2e-471d-8827-1f09cc1e48f4"/>
+				<textFieldExpression><![CDATA[$F{type}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="139" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="114" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="126" splitType="Stretch"/>
+	</summary>
+</jasperReport>

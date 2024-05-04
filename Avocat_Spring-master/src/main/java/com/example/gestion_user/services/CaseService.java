@@ -35,4 +35,5 @@ public interface CaseService {
 
     void addContributorToCase(Long caseId, ContributorDto contributorDTO);
     List<Contributor> getContributorsByCaseId(Long caseId);
+    void deleteContributorFromCase(Long caseId,Long contributorId);
 }

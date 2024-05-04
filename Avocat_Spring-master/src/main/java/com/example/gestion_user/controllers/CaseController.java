@@ -5,17 +5,26 @@ import com.example.gestion_user.entities.Case;
 import com.example.gestion_user.entities.Contributor;  // Added import statement for Contributor
 import com.example.gestion_user.entities.Trial;
 import com.example.gestion_user.entities.enums.ContributorType;
+import com.example.gestion_user.entities.report.Report;
+import com.example.gestion_user.entities.report.StringResult;
 import com.example.gestion_user.models.request.CaseDto;
 import com.example.gestion_user.models.request.ContributorDto;
 import com.example.gestion_user.services.CaseService;
+import com.example.gestion_user.services.JasperReportService;
 import lombok.AllArgsConstructor;
+import net.sf.jasperreports.engine.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import javax.persistence.EntityNotFoundException;
+import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -29,6 +38,8 @@ public class CaseController {
 
     @Autowired
     CaseService caseService;
+    @Autowired
+    JasperReportService jasperReportService;
     private static final Logger logger = LoggerFactory.getLogger(CaseController.class);
 
 
@@ -77,6 +88,33 @@ public class CaseController {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping("/reports")
+    public ResponseEntity<String> generateReport() {
+        try {
+            List<Case> cases = caseService.getCases(); // Retrieve all cases
+            jasperReportService.generateReport(cases);
+            return ResponseEntity.ok().body("Report generated successfully!");
+        } catch (JRException e) {
+            logger.error("Error generating report: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to generate report.");
+        }
+    }
+    @PostMapping("/pdf")
+    public String generatePdf(@RequestBody Map<String, Object> params) {
+        return jasperReportService.generatePdf(params);
+    }
+   /* @PostMapping("/print")
+    public StringResult print(@RequestBody Map<String, Object> params) {
+        try {
+            return this.jasperReportService.generatePdfReport(params);
+        } catch (SQLException | IOException | JRException e) {
+            // Handle exceptions more elegantly
+            e.printStackTrace();
+            return null;
+        }
+    }*/
+
+
 
   /*  @GetMapping("/{title}")
     public ResponseEntity<Case> getCaseByTitle(@PathVariable("title") String title) {
@@ -164,6 +202,19 @@ public class CaseController {
         }
     }
 
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{caseId}/deleteContributor/{contributorId}")
+    public ResponseEntity<?> deleteContributor(@PathVariable Long caseId, @PathVariable Long contributorId) {
+        try {
+            caseService.deleteContributorFromCase(caseId, contributorId);
+            logger.info("contributor"+contributorId+" deleted");
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting contributor from case: " + e.getMessage());
+        }
+    }
     }
 
 

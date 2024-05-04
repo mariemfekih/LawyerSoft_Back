@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.0.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="test" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="638d8bb4-6c76-494f-93c9-286d57b4364a">
+	<property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
+	<parameter name="firstPartyName" class="java.lang.String"/>
+	<parameter name="firstPartyID" class="java.lang.String"/>
+	<parameter name="secondPartyName" class="java.lang.String"/>
+	<parameter name="secondPartyID" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="108" splitType="Stretch">
+			<staticText>
+				<reportElement x="60" y="50" width="100" height="20" uuid="7d0147f5-03b5-4d1f-8fea-aa13f0472cce"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[first party name:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="60" y="70" width="100" height="20" uuid="eeca0599-a1d5-4857-a36f-2ee5931580bb"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[first party id:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="170" y="50" width="100" height="20" uuid="b9dd94ab-545e-465d-b0ec-ba862887ed93"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{firstPartyName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="170" y="70" width="100" height="20" uuid="477f61d7-3343-43e3-8368-c6b575f10abb"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{firstPartyID}]]></textFieldExpression>
+			</textField>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="50" splitType="Stretch">
+			<staticText>
+				<reportElement x="60" y="10" width="100" height="20" uuid="9353fad2-6f72-4e21-9ce2-18f75d332fb3"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[second party name:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="60" y="30" width="100" height="20" uuid="fda37677-7456-4706-ae2a-a1fd942f1050"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<text><![CDATA[secon party id:]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="170" y="9" width="110" height="22" uuid="514b8807-7be6-47de-a576-c1e1a8f83b32"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{secondPartyName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="170" y="31" width="100" height="18" uuid="7bf6685e-9eee-47c7-8ba1-60a75255a9bb"/>
+				<textElement>
+					<font fontName="SansSerif"/>
+				</textElement>
+				<textFieldExpression><![CDATA[$P{secondPartyID}]]></textFieldExpression>
+			</textField>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="61" splitType="Stretch"/>
+	</columnHeader>
+	<detail>
+		<band height="125" splitType="Stretch"/>
+	</detail>
+	<columnFooter>
+		<band height="45" splitType="Stretch"/>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch"/>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>
