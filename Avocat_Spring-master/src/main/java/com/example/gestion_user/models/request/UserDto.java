@@ -19,8 +19,6 @@ public class UserDto {
 
     private String lastName;
 
-    private String username;
-
     private String password;
 
     private String email;
@@ -35,6 +33,6 @@ public class UserDto {
 
     private Boolean gender;
 
-    private boolean active;
-    private boolean notLocked;
+    private boolean isActive;
+    private boolean isNotLocked;
 }

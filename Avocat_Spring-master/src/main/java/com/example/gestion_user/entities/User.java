@@ -62,7 +62,7 @@ public class User implements Serializable {
     private Date lastLoginDateDisplay;
     private Date joinDate;
     private String[] authorities;
-    private boolean isActive;
+    private boolean isActive = false;
     private boolean isNotLocked;
 
     /*

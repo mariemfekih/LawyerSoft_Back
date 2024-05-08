@@ -93,12 +93,12 @@ public class UserController  {
         return new ResponseEntity<>(user, OK);
     }
 
-    @GetMapping("/getUserById/{id}")
+    @GetMapping("/{id}")
     public User getUserById(@PathVariable("id") Long id) {
         return userService.getUserById(id);
     }
 
-    @GetMapping("/getUsers")
+    @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getUsers();
         return new ResponseEntity<>(users, OK);
@@ -108,10 +108,28 @@ public class UserController  {
     /*
     REGISTERRRRR
      */
-
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody User user) throws UserNotFoundException, UsernameExistException, EmailExistException, CinExistException,MessagingException {
-        User newUser = userService.register(user.getFirstName(), user.getLastName(), user.getUsername(), user.getCin(),user.getEmail(), user.getPassword(),user.getBirthDate(),user.getCity(),user.getGender(),user.getRole());
+    public ResponseEntity<?> register(@RequestBody UserDto userDto) throws UserNotFoundException, UsernameExistException, EmailExistException, CinExistException,MessagingException {
+        // Check password strength
+        String passwordStrength = userService.getPasswordStrength(userDto.getPassword());
+        if ("faible".equals(passwordStrength)) {
+            return ResponseEntity.badRequest().body("Le mot de passe ne respecte pas les critères de validation.");
+        }
+        // Check CIN validity
+        if (!userService.isCinValid(userDto.getCin())) {
+            return ResponseEntity.badRequest().body("Le CIN n'est pas valide.");
+        }
+        // Check email validity
+        if (!userService.isEmailValid(userDto.getEmail())) {
+            return ResponseEntity.badRequest().body("L'adresse e-mail n'est pas valide.");
+        }
+        // Generate unique username
+        String username = userService.generateUniqueUsername(userDto.getFirstName(), userDto.getLastName());
+
+        // Set isActive to false
+        userDto.setActive(false);
+
+        User newUser = userService.register(userDto);
 
         // After successful registration, create a UserPrincipal
         UserPrincipal userPrincipal = new UserPrincipal(newUser);
@@ -130,22 +148,22 @@ public class UserController  {
 /*
     LOGIN
  */
-    @PostMapping("/login")
-    public ResponseEntity<?> login(@RequestBody User user) {
-        authenticate(user.getEmail(), user.getPassword());
+@PostMapping("/login")
+public ResponseEntity<?> login(@RequestBody UserDto userDto) {
+    authenticate(userDto.getEmail(), userDto.getPassword());
 
-        User loginUser = userService.getUserByEmail(user.getEmail());
-        UserPrincipal userPrincipal = new UserPrincipal(loginUser);
+    User loginUser = userService.getUserByEmail(userDto.getEmail());
+    UserPrincipal userPrincipal = new UserPrincipal(loginUser);
 
-        // Generate JWT token
-        String token = jwtTokenProvider.generateJwtToken(userPrincipal);
+    // Generate JWT token
+    String token = jwtTokenProvider.generateJwtToken(userPrincipal);
 
-        // Return token in the response
-        Map<String, String> response = new HashMap<>();
-        response.put("token", token);
+    // Return token in the response
+    Map<String, String> response = new HashMap<>();
+    response.put("token", token);
 
-        return ResponseEntity.ok(response);
-    }
+    return ResponseEntity.ok(response);
+}
 
     private void authenticate(String email, String password) {
         authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
@@ -158,24 +176,7 @@ public class UserController  {
        return headers;
    }
 
-   @PostMapping("/addUser")
-    public ResponseEntity<User> addUser(@RequestParam("firstName") String firstName,
-                                           @RequestParam("lastName") String lastName,
-                                           @RequestParam("username") String username,
-                                           @RequestParam("cin") String cin,
-                                           @RequestParam("email") String email,
-                                           @RequestParam("password") String password,
-                                           @RequestParam("role") UserRole role,
-                                           @RequestParam("birthDate") Date birthDate,
-                                           @RequestParam("city") String city,
-                                           @RequestParam("gender") String gender,
-                                           @RequestParam("isNonLocked") String isNonLocked,
-                                           @RequestParam("isActive") String isActive,
-                                           @RequestParam(value = "profileImage", required = false) MultipartFile profileImage) throws UserNotFoundException, EmailExistException, IOException, UsernameExistException, NotAnImageFileException {
-        User newUser = userService.addUser(firstName, lastName,username,cin, email,password, role,birthDate,city,Boolean.parseBoolean(gender),
-                Boolean.parseBoolean(isNonLocked), Boolean.parseBoolean(isActive), profileImage);
-        return new ResponseEntity<>(newUser, OK);
-   }
+
 
 
 
@@ -188,7 +189,7 @@ public class UserController  {
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/deleteUser/{idUser}")
+    @DeleteMapping("/{idUser}")
     @PreAuthorize("hasAnyAuthority('user:delete')")
     public ResponseEntity<Void> deleteUser(@PathVariable("idUser") Long idUser) throws UserNotFoundException {
         userService.deleteUser(idUser);

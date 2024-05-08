@@ -31,12 +31,10 @@ public class JasperReportServiceImpl implements JasperReportService {
     DataSource dataSource;
     @Autowired
     ResourceLoader resourceLoader;
-    public String generatePdf(Map<String, Object> params) {
+    public String generatePdf(Map <String, Object> params) {
         try {
             JasperReport jasperReport = JasperCompileManager.compileReport("C:\\Users\\marie\\Documents\\Github\\LawyerSoft_Back\\Avocat_Spring-master\\src\\main\\resources\\templates\\test.jrxml");
-
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params, new JREmptyDataSource());
-
             String outputFile = reportConstant.REPORT_RESULT_FOLDER+"test.pdf";
             JasperExportManager.exportReportToPdfFile(jasperPrint, outputFile);
 
