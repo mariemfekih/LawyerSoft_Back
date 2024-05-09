@@ -30,6 +30,7 @@ import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 import static com.example.gestion_user.constants.FileConstant.*;
 import static com.example.gestion_user.constants.UserImplConstant.*;
@@ -146,7 +147,6 @@ public User register(UserDto userDto) throws UserNotFoundException, EmailExistEx
 
 
 
-
     @Override
     public User updateProfileImage(String username, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
         User user = validateNewUsernameAndEmail(username, null, null);
@@ -173,6 +173,18 @@ public User register(UserDto userDto) throws UserNotFoundException, EmailExistEx
     public User getUserById(Long id) {
         return userRepository.getById(id);    }
 
+    @Override
+    public User updateUserActiveState(Long userId, boolean newActiveState) throws Exception{
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setActive(newActiveState);
+            userRepository.save(user);
+            return user;
+        } else {
+            throw new Exception("User with ID " + userId + " not found.");
+        }
+    }
     @Override
     public void deleteUser(String email) throws  UserNotFoundException {
         User user = userRepository.findByEmail(email);

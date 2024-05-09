@@ -78,8 +78,16 @@ public class UserController  {
         return ResponseEntity.ok(updatedUser);
     }
 
-
-
+    @PutMapping("/{userId}/active")
+    public ResponseEntity<User> updateUserActiveState(@PathVariable Long userId, @RequestBody boolean newActiveState) {
+        try {
+            User updatedUser = userService.updateUserActiveState(userId, newActiveState);
+            return ResponseEntity.ok(updatedUser);
+        } catch (Exception e) {
+            // Handle exceptions, e.g., user not found
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
 
 
     @GetMapping("/getUserByUsername/{username}")
@@ -94,10 +102,33 @@ public class UserController  {
     }
 
     @GetMapping("/{id}")
-    public User getUserById(@PathVariable("id") Long id) {
-        return userService.getUserById(id);
+    public ResponseEntity<UserDto> getUserById(@PathVariable("id") Long id) {
+        User user = userService.getUserById(id); // Assuming getUserById() returns User directly
+        if (user == null) {
+            return ResponseEntity.notFound().build();
+        }
+        UserDto userDto = convertToDto(user);
+        return ResponseEntity.ok(userDto);
     }
 
+    private UserDto convertToDto(User user) {
+        UserDto userDto = new UserDto();
+        userDto.setCin(user.getCin());
+        userDto.setFirstName(user.getFirstName());
+        userDto.setLastName(user.getLastName());
+        userDto.setEmail(user.getEmail());
+        userDto.setRole(user.getRole());
+        userDto.setBirthDate(user.getBirthDate());
+        userDto.setCity(user.getCity());
+        userDto.setGender(user.getGender());
+        userDto.setActive(user.isActive());
+        userDto.setNotLocked(user.isNotLocked());
+        userDto.setUsername(user.getUsername());
+        userDto.setJoinDate(user.getJoinDate());
+
+
+        return userDto;
+    }
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
         List<User> users = userService.getUsers();
@@ -159,8 +190,9 @@ public ResponseEntity<?> login(@RequestBody UserDto userDto) {
     String token = jwtTokenProvider.generateJwtToken(userPrincipal);
 
     // Return token in the response
-    Map<String, String> response = new HashMap<>();
+    Map<String, Object> response = new HashMap<>();
     response.put("token", token);
+    response.put("user", loginUser);
 
     return ResponseEntity.ok(response);
 }

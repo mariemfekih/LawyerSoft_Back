@@ -33,6 +33,11 @@ public class UserDto {
 
     private Boolean gender;
 
-    private boolean isActive;
-    private boolean isNotLocked;
+    private boolean active;
+    private boolean notLocked;
+
+    private String username;
+    @Temporal(TemporalType.DATE)
+    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    private Date joinDate;
 }

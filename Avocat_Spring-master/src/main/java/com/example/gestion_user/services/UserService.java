@@ -20,7 +20,7 @@ public interface UserService {
     public User addUser(UserDto user);
     public User updateUser(Long id, UserDto updatedUserDto);
     User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException;
-
+    User updateUserActiveState(Long userId, boolean newActiveState) throws Exception;
 
     /*
     DELETEEEE
