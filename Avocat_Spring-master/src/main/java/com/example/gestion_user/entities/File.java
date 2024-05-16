@@ -1,6 +1,7 @@
 package com.example.gestion_user.entities;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -35,6 +36,10 @@ public class File implements Serializable {
     /*
   Relation entre Folder et file
   */
-    @ManyToMany
-    private List<Folder> folders = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "folder_id")
+    @JsonIgnore
+    private Folder folder;
+//    @ManyToMany
+//    private List<Folder> folders = new ArrayList<>();
 }

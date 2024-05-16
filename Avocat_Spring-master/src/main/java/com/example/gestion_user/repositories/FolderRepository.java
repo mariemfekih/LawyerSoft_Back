@@ -6,10 +6,12 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface FolderRepository extends JpaRepository<Folder, Long> {
     Folder findByName(String name);
+
 
    /* @Query("SELECT d.dossierName FROM Folder d")
     List<String> findAllNomDossiers();*/

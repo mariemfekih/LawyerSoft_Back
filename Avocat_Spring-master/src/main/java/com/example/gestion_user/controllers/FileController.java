@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
@@ -20,26 +21,20 @@ public class FileController {
     FileService fileService;
 
 
-    @PostMapping
-    public ResponseEntity<File> addFile(@RequestBody FileDto file) {
-        File addedFile = fileService.addFile(file);
+    @PostMapping("/folders/{folderId}/files")
+    public ResponseEntity<File> addFile(@PathVariable Long folderId,
+                                        @RequestParam("file") MultipartFile multipartFile) {
+        File addedFile = fileService.addFile(folderId, multipartFile);
         return ResponseEntity.status(HttpStatus.CREATED).body(addedFile);
     }
 
-    @PutMapping("/{id}")
-    public ResponseEntity<File> updateFile(@PathVariable Long id,@RequestBody FileDto updatedFile) {
-        File existingFile = fileService.getFileById(id);
-        if (existingFile == null) {
-            return ResponseEntity.notFound().build();
-        }
-        File file = fileService.updateFile(id,updatedFile);
-        return ResponseEntity.ok(file);
-    }
+
+
 
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/{idFile}")
-    public ResponseEntity<Void> deleteFile(@PathVariable Long idFile) {
-        fileService.deleteFile(idFile);
+    @DeleteMapping("/folders/{idFolder}/files/{idFile}")
+    public ResponseEntity<Void> deleteFile(@PathVariable Long idFile, @PathVariable Long idFolder) {
+        fileService.deleteFile(idFile, idFolder);
         return ResponseEntity.noContent().build();
     }
     @GetMapping

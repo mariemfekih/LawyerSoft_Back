@@ -14,6 +14,7 @@ import com.example.gestion_user.services.JasperReportService;
 import lombok.AllArgsConstructor;
 import net.sf.jasperreports.engine.*;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
@@ -23,6 +24,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.persistence.EntityNotFoundException;
 import java.io.IOException;
 import java.sql.SQLException;
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -44,11 +46,16 @@ public class CaseController {
 
 
 
-    @PostMapping
-    public ResponseEntity<Case> addCase(@RequestBody CaseDto c) {
-        Case addedCase = caseService.addCase(c);
-        return ResponseEntity.status(HttpStatus.CREATED).body(addedCase);
-    }
+//    @PostMapping
+//    public ResponseEntity<Case> addCase(@RequestBody CaseDto c) {
+//        Case addedCase = caseService.addCase(c);
+//        return ResponseEntity.status(HttpStatus.CREATED).body(addedCase);
+//    }
+@PostMapping("/{userId}")
+public ResponseEntity<Case> addCase(@RequestBody CaseDto c, @PathVariable Long userId) {
+    Case addedCase = caseService.addCase(c, userId);
+    return ResponseEntity.status(HttpStatus.CREATED).body(addedCase);
+}
 
     /*
      * Update Case
@@ -78,6 +85,11 @@ public class CaseController {
         List<Case> listCases = caseService.getCases();
         return ResponseEntity.ok().body(listCases);
     }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Case>> getUserCases(@PathVariable Long userId) {
+        List<Case> cases = caseService.getUserCases(userId);
+        return ResponseEntity.ok(cases);
+    }
 
     @GetMapping("/{idCase}")
     public ResponseEntity<Case> getCaseById(@PathVariable("idCase") Long idCase) {
@@ -87,6 +99,31 @@ public class CaseController {
         } else {
             return ResponseEntity.notFound().build();
         }
+    }
+    @GetMapping("/withoutFolders")
+    public List<Case> getCasesWithoutFolders() {
+        return caseService.getCasesWithoutFolders();
+    }
+
+    @GetMapping("/total")
+    public ResponseEntity<Long> getTotalCases() {
+        long totalCases = caseService.getTotalCases();
+        return new ResponseEntity<>(totalCases, HttpStatus.OK);
+    }
+    @GetMapping("/user/{userId}/total")
+    public ResponseEntity<Long> getTotalCasesByUser(@PathVariable Long userId) {
+        Long totalCases = caseService.getTotalCasesByUser(userId);
+        return new ResponseEntity<>(totalCases, HttpStatus.OK);
+    }
+    @GetMapping("/user/{userId}/total-month")
+    public ResponseEntity<Long> getTotalCasesByUserMonth(@PathVariable Long userId) {
+        Long totalCases = caseService.getTotalCasesByUserMonth(userId);
+        return new ResponseEntity<>(totalCases, HttpStatus.OK);
+    }
+    @GetMapping("/user/{userId}/percentage-change")
+    public ResponseEntity<Double> getPercentageChangeInTotalCasesByUser(@PathVariable Long userId) {
+        double percentageChange = caseService.getPercentageChangeInTotalCasesByUser(userId);
+        return ResponseEntity.ok(percentageChange);
     }
     @GetMapping("/reports")
     public ResponseEntity<String> generateReport() {
@@ -103,20 +140,11 @@ public class CaseController {
     public String generatePdf(@RequestBody Map<String, Object> params) {
         return jasperReportService.generatePdf(params);
     }
-   /* @PostMapping("/print")
-    public StringResult print(@RequestBody Map<String, Object> params) {
-        try {
-            return this.jasperReportService.generatePdfReport(params);
-        } catch (SQLException | IOException | JRException e) {
-            // Handle exceptions more elegantly
-            e.printStackTrace();
-            return null;
-        }
-    }*/
 
 
 
-  /*  @GetMapping("/{title}")
+
+  /*  @GetMapping("/title/{title}")
     public ResponseEntity<Case> getCaseByTitle(@PathVariable("title") String title) {
         Case casetitle = caseService.getCaseByTitle(title);
         if (casetitle != null) {
@@ -128,18 +156,18 @@ public class CaseController {
 
 
     ///////////////Add trial to case:
-    @PostMapping("/{case_id}/addTrial")
-    public ResponseEntity<?> addTrialToCase(@PathVariable Long case_id, @RequestBody Trial trial) {
-        try {
-            caseService.addTrialToCase(case_id, trial);
-            logger.info("trial added");
-            return ResponseEntity.ok().build();
-        } catch (EntityNotFoundException e) {
-            return ResponseEntity.notFound().build();
-        } catch (Exception e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding trial to case: " + e.getMessage());
-        }
-    }
+//    @PostMapping("/{case_id}/addTrial")
+//    public ResponseEntity<?> addTrialToCase(@PathVariable Long case_id, @RequestBody Trial trial) {
+//        try {
+//            caseService.addTrialToCase(case_id, trial);
+//            logger.info("trial added");
+//            return ResponseEntity.ok().build();
+//        } catch (EntityNotFoundException e) {
+//            return ResponseEntity.notFound().build();
+//        } catch (Exception e) {
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding trial to case: " + e.getMessage());
+//        }
+//    }
     @PutMapping("/{caseId}/updateTrial/{trialId}")
     public ResponseEntity<Trial> updateTrial(@PathVariable Long caseId, @PathVariable Long trialId, @RequestBody Trial updatedTrial) {
         try {

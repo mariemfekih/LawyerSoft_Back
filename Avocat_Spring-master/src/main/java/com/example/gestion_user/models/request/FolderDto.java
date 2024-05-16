@@ -17,6 +17,5 @@ public class FolderDto {
 
     @NotBlank
     private String name;
-
     private FolderStatus status;
 }

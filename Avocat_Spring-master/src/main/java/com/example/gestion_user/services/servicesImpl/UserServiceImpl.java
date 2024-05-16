@@ -281,12 +281,12 @@ public User register(UserDto userDto) throws UserNotFoundException, EmailExistEx
         return caseRepository.save(case1);
     }
 
-    @Override
-    public void addUserToCase(String email, String title){
-      Case case1 =caseRepository.findByTitle(title);
-      User user=userRepository.findByEmail(email);
-      case1.getUsers().add(user);
-    }
+//    @Override
+//    public void addUserToCase(String email, String title){
+//      Case case1 =caseRepository.findByTitle(title);
+//      User user=userRepository.findByEmail(email);
+//      case1.getUsers().add(user);
+//    }
 
 
 

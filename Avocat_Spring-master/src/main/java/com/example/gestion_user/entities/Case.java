@@ -9,6 +9,7 @@ import lombok.*;
 import javax.persistence.*;
 import javax.validation.constraints.NotBlank;
 import java.io.Serializable;
+import java.security.SecureRandom;
 import java.util.*;
 
 
@@ -27,6 +28,10 @@ public class Case implements Serializable {
     @Column(nullable = false)
     private String title;
 
+    @NotBlank(message = "reference is requires")
+    @Column(nullable = false,unique = true)
+    private String reference;
+
     @Column(nullable = false)
     private String description;
 
@@ -44,6 +49,7 @@ public class Case implements Serializable {
     @Enumerated(EnumType.STRING)
     private CaseType type;
 
+
     /*
     RELATION ENTRE CASE AND TRIAL
     */
@@ -55,15 +61,17 @@ public class Case implements Serializable {
     /*
    RELATION ENTRE CASE AND FOLDERS
    */
-    @OneToMany(mappedBy = "caseInstance", cascade = CascadeType.ALL)
+    @OneToOne(mappedBy = "caseInstance", cascade = CascadeType.ALL)
     @JsonIgnore
-    private List<Folder> folders;
+    private Folder folder;
 
     /*
 Relation entre User et Case
 */
-    @ManyToMany
-    private List<User> users ;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 
 /*
 case-contributor
@@ -72,7 +80,27 @@ case-contributor
     @JsonIgnore
     private List<Contributor> contributors;
 
+    // Constructor with random reference generation
+    public Case(String title, String description, Date creationDate, Date closingDate, CaseType type) {
+        this.title = title;
+        this.description = description;
+        this.creationDate = creationDate;
+        this.closingDate = closingDate;
+        this.type = type;
+        this.reference = generateRandomReference();
+    }
 
+    // Method to generate random alphanumeric reference
+    public String generateRandomReference() {
+        int length = 6; // Adjust the length as needed
+        String characters = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        SecureRandom random = new SecureRandom();
+        StringBuilder sb = new StringBuilder(length);
+        for (int i = 0; i < length; i++) {
+            sb.append(characters.charAt(random.nextInt(characters.length())));
+        }
+        return sb.toString();
+    }
 
 
 

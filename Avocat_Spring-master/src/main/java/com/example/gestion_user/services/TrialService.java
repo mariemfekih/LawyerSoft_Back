@@ -5,14 +5,11 @@ import com.example.gestion_user.entities.Trial;
 import java.util.List;
 
 public interface TrialService {
-    Trial addTrial(Trial trial);
-
-    List<Trial> getTrials();
-
+    Trial addTrial(Long case_id,Long court_id, Trial trial);
     Trial updateTrial(Trial trial);
-
+    Trial updateTrial(Long caseId, Long courtId,Long trialId, Trial updatedTrial);
     void deleteTrial(Long id);
-
+    List<Trial> getTrials();
     Trial getTrialById(Long id);
 
 

@@ -54,7 +54,7 @@ public interface UserService {
 
 //user+case
     Case saveCase (Case case1);
-    void addUserToCase(String email,String title);
+   // void addUserToCase(String email,String title);
 
 
 /*Controle de saisi*/

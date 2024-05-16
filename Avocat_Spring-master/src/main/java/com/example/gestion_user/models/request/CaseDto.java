@@ -18,6 +18,8 @@ public class CaseDto {
     private String title;
 
     private String description;
+     @NotBlank
+     private String reference;
 
     private Date creationDate;
 

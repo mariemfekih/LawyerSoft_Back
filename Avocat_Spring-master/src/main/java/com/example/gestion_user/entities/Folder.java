@@ -2,6 +2,7 @@ package com.example.gestion_user.entities;
 
 import com.example.gestion_user.entities.enums.FolderStatus;
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -21,7 +22,7 @@ public class Folder implements Serializable {
     @Column(nullable = false, updatable = false)
     private Long idFolder;
 
-    @Column(nullable = false)
+    @Column(nullable = false,unique = true)
     @NotBlank
     private String name;
 
@@ -37,7 +38,7 @@ public class Folder implements Serializable {
     /*
     RELATION ENTRE CASE AND FOLDER
      */
-    @ManyToOne(fetch = FetchType.LAZY)
+    @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "case_id") // foreign key column name
     private Case caseInstance;
 
@@ -45,6 +46,10 @@ public class Folder implements Serializable {
     /*
         Relation entre Folder et File
         */
-    @ManyToMany(mappedBy="folders")
-    private List<File> files = new ArrayList<>();
+    @OneToMany(mappedBy = "folder")
+    @JsonIgnore
+    private List<File> files;
+
+//    @ManyToMany(mappedBy="folders")
+//    private List<File> files = new ArrayList<>();
 }

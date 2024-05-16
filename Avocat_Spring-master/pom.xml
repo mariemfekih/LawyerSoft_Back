@@ -134,6 +134,12 @@
             <artifactId>spring-security-web</artifactId>
             <version>5.7.3</version>
         </dependency>
+        <!-- https://mvnrepository.com/artifact/net.sf.jasperreports/jasperreports-fonts -->
+        <dependency>
+            <groupId>net.sf.jasperreports</groupId>
+            <artifactId>jasperreports-fonts</artifactId>
+            <version>6.8.0</version>
+        </dependency>
 
 
 
@@ -159,6 +165,8 @@
             <artifactId>chemistry-opencmis-client-impl</artifactId>
             <version>1.1.0</version>
         </dependency>
+
+
     </dependencies>
 
     <build>

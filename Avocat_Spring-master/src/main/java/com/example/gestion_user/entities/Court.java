@@ -1,6 +1,7 @@
 package com.example.gestion_user.entities;
 
 import com.example.gestion_user.entities.enums.CourtType;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -39,6 +40,7 @@ public class Court implements Serializable {
  RELATION ENTRE COURT AND TRIAL
  */
     @OneToMany(mappedBy = "courtInstance", cascade = CascadeType.ALL)
+    @JsonIgnore
     private List<Trial> trials;
 
 }

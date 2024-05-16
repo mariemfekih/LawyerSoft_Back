@@ -84,9 +84,11 @@ public class User implements Serializable {
     /*
     Relation entre User et Case
     */
-    @ManyToMany(mappedBy="users")
-    @JsonIgnore
-    private List<Case> cases ;
+   @OneToMany(mappedBy = "user")
+   @JsonIgnore
+    private List<Case> cases;
+
+
     /*
     Relation entre User et Privilege
     */

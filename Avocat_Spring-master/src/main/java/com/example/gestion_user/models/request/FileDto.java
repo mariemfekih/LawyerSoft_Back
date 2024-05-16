@@ -11,6 +11,4 @@ import javax.validation.constraints.NotBlank;
 public class FileDto {
     @NotBlank
     private String name;
-
-    private String path;
 }

@@ -12,28 +12,34 @@ import org.springframework.web.bind.annotation.*;
 import java.util.List;
 
 @RestController
-@RequestMapping("")
+@RequestMapping("Folder")
 public class FolderController {
 
     @Autowired
     FolderService folderService;
 
-    @PostMapping
-    public ResponseEntity<Folder> addFolder(@RequestBody FolderDto f) {
-        Folder addedFolder = folderService.addFolder(f);
+    @PostMapping("/{caseId}")
+    public ResponseEntity<Folder> addFolder(@RequestBody FolderDto f, @PathVariable Long caseId) {
+        Folder addedFolder = folderService.addFolder(f, caseId);
         return ResponseEntity.status(HttpStatus.CREATED).body(addedFolder);
     }
-
-
     @PutMapping("/{id}")
-    public ResponseEntity<Folder> updateFolder(@PathVariable Long id,@RequestBody FolderDto updatedFolder) {
-        Folder existingFolder = folderService.getFolderById(id);
-        if (existingFolder == null) {
-            return ResponseEntity.notFound().build();
-        }
-        Folder folder = folderService.updateFolder(id,updatedFolder);
-        return ResponseEntity.ok().body(folder);
+    public ResponseEntity<Folder> updateFolder(
+            @PathVariable("id") Long id,
+            @RequestBody FolderDto updatedFolderDto) {
+        Folder updatedFolder = folderService.updateFolder(id, updatedFolderDto);
+        return ResponseEntity.ok(updatedFolder);
     }
+
+//    @PutMapping("/{id}")
+//    public ResponseEntity<Folder> updateFolder(@PathVariable Long id,@RequestBody FolderDto updatedFolder) {
+//        Folder existingFolder = folderService.getFolderById(id);
+//        if (existingFolder == null) {
+//            return ResponseEntity.notFound().build();
+//        }
+//        Folder folder = folderService.updateFolder(id,updatedFolder);
+//        return ResponseEntity.ok().body(folder);
+//    }
 
     @ResponseStatus(HttpStatus.OK)
     @DeleteMapping("/{idFolder}")
@@ -52,7 +58,7 @@ public class FolderController {
         return folderService.getFolderById(idFolder);
     }
 
-    @GetMapping("/{name}")
+    @GetMapping("/name/{name}")
     public ResponseEntity<Folder> getFolderByName(@PathVariable String name) {
         Folder folder = folderService.getFolderByName(name);
         if (folder != null) {
@@ -61,6 +67,7 @@ public class FolderController {
             return ResponseEntity.notFound().build();
         }
     }
+
 
 
 }

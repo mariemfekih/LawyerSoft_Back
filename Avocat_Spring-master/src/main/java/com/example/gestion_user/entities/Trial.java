@@ -1,5 +1,6 @@
 package com.example.gestion_user.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.*;
 
 import javax.persistence.*;
@@ -30,6 +31,7 @@ public class Trial {
     RELATION ENTRE Case AND Trial
      */
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "case_id") // foreign key column name
     private Case caseInstance;
 
@@ -37,8 +39,9 @@ public class Trial {
    RELATION ENTRE Court AND Trial
     */
     @ManyToOne(fetch = FetchType.LAZY)
+    @JsonIgnore
     @JoinColumn(name = "court_id") // foreign key column name
-    private Case courtInstance;
+    private Court courtInstance;
 
 
 

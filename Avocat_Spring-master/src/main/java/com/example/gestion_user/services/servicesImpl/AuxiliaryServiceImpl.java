@@ -1,6 +1,8 @@
 package com.example.gestion_user.services.servicesImpl;
 
 import com.example.gestion_user.entities.Auxiliary;
+import com.example.gestion_user.entities.Case;
+import com.example.gestion_user.entities.User;
 import com.example.gestion_user.exceptions.NotFoundException;
 import com.example.gestion_user.models.request.AuxiliaryDto;
 import com.example.gestion_user.repositories.AuxiliaryRepository;
