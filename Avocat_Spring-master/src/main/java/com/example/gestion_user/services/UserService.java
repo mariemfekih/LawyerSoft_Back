@@ -9,9 +9,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.multipart.MultipartFile;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 public interface UserService {
 
@@ -19,7 +21,7 @@ public interface UserService {
 
     public User addUser(UserDto user);
     public User updateUser(Long id, UserDto updatedUserDto);
-    User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException;
+    User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException;
     User updateUserActiveState(Long userId, boolean newActiveState) throws Exception;
 
     /*
@@ -35,7 +37,7 @@ public interface UserService {
     User getUserByEmail(String email);
 
     public User getUserById(Long id);
-
+    Optional<User> getUserByid(Long id);
 
     UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
 

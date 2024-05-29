@@ -6,6 +6,7 @@ import com.example.gestion_user.entities.User;
 import com.example.gestion_user.exceptions.NotFoundException;
 import com.example.gestion_user.models.request.AuxiliaryDto;
 import com.example.gestion_user.repositories.AuxiliaryRepository;
+import com.example.gestion_user.repositories.UserRepository;
 import com.example.gestion_user.services.AuxiliaryService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,9 +18,18 @@ import java.util.List;
 public class AuxiliaryServiceImpl implements AuxiliaryService {
     @Autowired
     AuxiliaryRepository auxiliaryRepository;
+    @Autowired
+    UserRepository userRepository;
     @Override
-    public Auxiliary addAuxiliary(AuxiliaryDto a) {
-        Auxiliary auxiliary=new Auxiliary();
+    public Auxiliary addAuxiliary(AuxiliaryDto a, Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+
+        Auxiliary existingAuxiliary = auxiliaryRepository.findByCin(a.getCin());
+        if (existingAuxiliary != null) {
+            throw new DuplicateCinException("CIN " + a.getCin() + " already exists.");
+        }
+
+        Auxiliary auxiliary = new Auxiliary();
         auxiliary.setFirstName(a.getFirstName());
         auxiliary.setLastName(a.getLastName());
         auxiliary.setCin(a.getCin());
@@ -28,6 +38,7 @@ public class AuxiliaryServiceImpl implements AuxiliaryService {
         auxiliary.setPhone(a.getPhone());
         auxiliary.setCity(a.getCity());
         auxiliary.setBirthDate(a.getBirthDate());
+        auxiliary.setUser(user);
 
         try {
             return auxiliaryRepository.save(auxiliary);
@@ -35,6 +46,13 @@ public class AuxiliaryServiceImpl implements AuxiliaryService {
             throw new NotFoundException("Failed to create auxiliary: " + ex.getMessage());
         }
     }
+
+    public class DuplicateCinException extends RuntimeException {
+        public DuplicateCinException(String message) {
+            super(message);
+        }
+    }
+
     @Override
     public Auxiliary updateAuxiliary(Long id, AuxiliaryDto updatedAuxiliaryDto) {
         // Find the existing Auxiliary entity by ID
@@ -72,6 +90,11 @@ public class AuxiliaryServiceImpl implements AuxiliaryService {
         return auxiliaryRepository.findById(idAuxiliary).get();
     }
     @Override
+    public List<Auxiliary> getUserAuxiliary(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        return user.getAuxiliaries();
+    }
+    @Override
     public Auxiliary getAuxiliaryByCin(String cin) {
         return auxiliaryRepository.findByCin(cin);
     }
@@ -79,4 +102,10 @@ public class AuxiliaryServiceImpl implements AuxiliaryService {
         return auxiliaryRepository.findByEmail(email);
     }
 
+    @Override
+    public long getTotalAuxiliariesByUser(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("user not found !!"));
+        List<Auxiliary> auxiliaries = auxiliaryRepository.findAllByUser(user);
+        return auxiliaries.size();
+    }
 }

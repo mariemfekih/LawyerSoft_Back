@@ -10,6 +10,9 @@ public interface TrialService {
     Trial updateTrial(Long caseId, Long courtId,Long trialId, Trial updatedTrial);
     void deleteTrial(Long id);
     List<Trial> getTrials();
+
+    List<Trial> getTrialsByCaseId(Long caseId);
+
     Trial getTrialById(Long id);
 
 

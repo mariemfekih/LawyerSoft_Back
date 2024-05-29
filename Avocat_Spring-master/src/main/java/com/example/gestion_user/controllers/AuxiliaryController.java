@@ -1,6 +1,7 @@
 package com.example.gestion_user.controllers;
 
 import com.example.gestion_user.entities.Auxiliary;
+import com.example.gestion_user.entities.Case;
 import com.example.gestion_user.entities.report.Report;
 import com.example.gestion_user.entities.report.StringResult;
 import com.example.gestion_user.models.request.AuxiliaryDto;
@@ -23,9 +24,9 @@ public class AuxiliaryController {
     AuxiliaryService auxiliaryService;
     private JasperReportService jasperReportService;
 
-    @PostMapping
-    public ResponseEntity<Auxiliary> addAuxiliary(@RequestBody AuxiliaryDto a) {
-        Auxiliary addedAuxiliary = auxiliaryService.addAuxiliary(a);
+    @PostMapping("/{userId}")
+    public ResponseEntity<Auxiliary> addAuxiliary(@RequestBody AuxiliaryDto a, @PathVariable Long userId) {
+        Auxiliary addedAuxiliary = auxiliaryService.addAuxiliary(a,userId);
         return ResponseEntity.status(HttpStatus.CREATED).body(addedAuxiliary);
     }
 
@@ -67,6 +68,11 @@ public class AuxiliaryController {
             return ResponseEntity.notFound().build();
         }
     }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Auxiliary>> getUserAuxiliaries(@PathVariable Long userId) {
+        List<Auxiliary> auxiliaries = auxiliaryService.getUserAuxiliary(userId);
+        return ResponseEntity.ok(auxiliaries);
+    }
 
     @GetMapping("/cin/{cin}")
     public ResponseEntity<Auxiliary> getAuxiliaryByCin(@PathVariable String cin) {
@@ -94,5 +100,10 @@ public class AuxiliaryController {
             reportName=this.jasperReportService.createReport(report);
         }catch(SQLException e){ e.printStackTrace();}
         return reportName;
+    }
+    @GetMapping("/user/{userId}/total")
+    public ResponseEntity<Long> getTotalAuxiliariesByUser(@PathVariable Long userId) {
+        Long totalCases = auxiliaryService.getTotalAuxiliariesByUser(userId);
+        return new ResponseEntity<>(totalCases, HttpStatus.OK);
     }
 }

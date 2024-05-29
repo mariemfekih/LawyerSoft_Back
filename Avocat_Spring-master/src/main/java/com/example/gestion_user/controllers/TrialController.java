@@ -63,9 +63,14 @@ public class TrialController {
     }
 
     @GetMapping
-    public ResponseEntity<List<Trial>> getTrials() {
+    public ResponseEntity<List<Trial>> getTrials() { //get tt les trials
         List<Trial> trials = trialService.getTrials();
         return ResponseEntity.ok(trials);
+    }
+    @GetMapping("/{caseId}/getTrials")
+    public ResponseEntity<List<Trial>> getTrialsByCaseId(@PathVariable Long caseId) {
+        List<Trial> trials = trialService.getTrialsByCaseId(caseId);
+        return ResponseEntity.ok().body(trials);
     }
 
     @GetMapping("/{idTrial}")

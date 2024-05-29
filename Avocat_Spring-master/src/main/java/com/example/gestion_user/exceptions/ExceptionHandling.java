@@ -1,6 +1,7 @@
 package com.example.gestion_user.exceptions;
 
 import com.auth0.jwt.exceptions.TokenExpiredException;
+import com.example.gestion_user.services.servicesImpl.AuxiliaryServiceImpl;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.boot.web.servlet.error.ErrorController;
@@ -113,5 +114,8 @@ public class ExceptionHandling {
         return new ResponseEntity<>(new HttpResponse(httpStatus.value(), httpStatus,
                 httpStatus.getReasonPhrase().toUpperCase(), message), httpStatus);
     }
-
+    @ExceptionHandler(AuxiliaryServiceImpl.DuplicateCinException.class)
+    public ResponseEntity<String> handleDuplicateCinException(AuxiliaryServiceImpl.DuplicateCinException ex) {
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(ex.getMessage());
+    }
 }

@@ -61,11 +61,12 @@ public void setCin(String cin) {
 }
 
     /*
-Auxiliary - appointment
+Auxiliary - user
  */
-@OneToMany(mappedBy = "auxiliary", cascade = CascadeType.ALL)
-@JsonIgnore
-private Set<Appointment> appointments;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;
 
 
 

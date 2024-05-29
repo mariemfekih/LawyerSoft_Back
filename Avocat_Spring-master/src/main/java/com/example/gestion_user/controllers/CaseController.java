@@ -168,7 +168,7 @@ public ResponseEntity<Case> addCase(@RequestBody CaseDto c, @PathVariable Long u
 //            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding trial to case: " + e.getMessage());
 //        }
 //    }
-    @PutMapping("/{caseId}/updateTrial/{trialId}")
+  /*  @PutMapping("/{caseId}/updateTrial/{trialId}")
     public ResponseEntity<Trial> updateTrial(@PathVariable Long caseId, @PathVariable Long trialId, @RequestBody Trial updatedTrial) {
         try {
             caseService.updateTrial(caseId, trialId, updatedTrial);
@@ -200,7 +200,7 @@ public ResponseEntity<Case> addCase(@RequestBody CaseDto c, @PathVariable Long u
         List<Trial> trials = caseService.getTrialsByCaseId(caseId);
         return ResponseEntity.ok().body(trials);
     }
-
+*/
 
 
 

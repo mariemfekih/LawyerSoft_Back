@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Appointment Invitation</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0 auto;
+            width: 50%;
+        }
+
+        h1 {
+            font-size: 28px;
+            color: #c20000;
+        }
+
+        p {
+            font-size: 16px;
+            color: #555;
+            line-height: 1.5em;
+        }
+
+        table {
+            margin: 20px 0;
+            border-collapse: collapse;
+            width: 100%;
+            max-width: 600px;
+            border: 1px solid #ccc;
+        }
+
+        th, td {
+            padding: 10px;
+            text-align: left;
+            border-bottom: 1px solid #ccc;
+        }
+
+        th {
+            font-weight: bold;
+            background-color: #f7f7f7;
+        }
+
+        a {
+            display: inline-block;
+            background-color: #c20000;
+            color: #c0c0c0;
+            padding: 10px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        a:hover {
+            background-color: #2a3a4f;
+        }
+
+        .logo {
+            display: block;
+            margin: 20px auto;
+            max-width: 200px;
+        }
+    </style>
+</head>
+
+<body>
+<img src="../static/logoEsprit.jpg" s height="200px" width="750px" th:src="@{|cid:${'logoEsprit.jpg'}|}" />
+<h1>Appointment Invitation</h1>
+<p>Dear [[${user.firstname}]],</p>
+<p>You are cordially invited to attend an interview for admission to our university.</p>
+<table>
+    <tr>
+        <th>Date:</th>
+        <td>[[${appointment.date}]]</td>
+    </tr>
+    <tr>
+        <th>Start Time:</th>
+        <td>[[${appointment.startTime}]]</td>
+    </tr>
+    <tr>
+        <th>End Time:</th>
+        <td>[[${appointment.endTime}]]</td>
+    </tr>
+    <tr th:if="${appointment.type != 'MEETING'}">
+        <th>Location:</th>
+        <td>[[${appointment.location}]]</td>
+    </tr>
+    <tr th:if="${appointment.type == 'MEETING'}">
+        <th>Link:</th>
+        <td>[[${appointment.linkHangout}]]</td>
+    </tr>
+</table>
+
+<p>Please confirm your attendance by clicking the link below:</p>
+<a th:href="@{|${baseUrl}/events/confirm?userId=${user.idUser}&eventId=${appointment.id}|}">Confirm Attendance</a>
+<p>Best regards,</p>
+<p>The Admissions Team</p>
+</body>
+</html>

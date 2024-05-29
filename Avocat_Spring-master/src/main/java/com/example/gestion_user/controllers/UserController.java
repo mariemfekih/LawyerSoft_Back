@@ -1,5 +1,6 @@
 package com.example.gestion_user.controllers;
 
+import com.example.gestion_user.entities.Appointment;
 import com.example.gestion_user.entities.Case;
 import com.example.gestion_user.entities.User;
 import com.example.gestion_user.entities.UserPrincipal;
@@ -10,6 +11,7 @@ import com.example.gestion_user.models.request.UserDto;
 import com.example.gestion_user.repositories.UserRepository;
 //import com.example.gestion_user.security.JWTTokenProvider;
 import com.example.gestion_user.security.JWTTokenProvider;
+import com.example.gestion_user.services.AppointmentService;
 import com.example.gestion_user.services.UserService;
 //import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,6 +31,7 @@ import java.io.InputStream;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
 import java.util.*;
 
 import static com.example.gestion_user.constants.FileConstant.*;
@@ -54,7 +57,8 @@ public class UserController  {
 
     @Autowired
     private UserRepository userRepository;
-
+@Autowired
+private AppointmentService appointmentService;
 
     @PostMapping
     public ResponseEntity<User> addUser(@RequestBody UserDto u) {
@@ -62,10 +66,7 @@ public class UserController  {
         return ResponseEntity.status(HttpStatus.CREATED).body(addedUser);
     }
 
-    /*
-     * Update Case
-     */
-    @PutMapping("/{idUser}")
+@PutMapping("/{idUser}")
     public ResponseEntity<User> updateUser(@PathVariable Long idUser, @RequestBody UserDto updatedUserDto) {
         User existingUser = userService.getUserById(idUser);
 
@@ -77,6 +78,8 @@ public class UserController  {
         // Return the updated User with a 200 OK status
         return ResponseEntity.ok(updatedUser);
     }
+
+
 
     @PutMapping("/{userId}/active")
     public ResponseEntity<User> updateUserActiveState(@PathVariable Long userId, @RequestBody boolean newActiveState) {
@@ -139,44 +142,48 @@ public class UserController  {
     /*
     REGISTERRRRR
      */
+//
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDto userDto) throws UserNotFoundException, UsernameExistException, EmailExistException, CinExistException,MessagingException {
+    public ResponseEntity<?> register(@RequestBody UserDto userDto) throws UserNotFoundException, UsernameExistException, EmailExistException, CinExistException, MessagingException {
         // Check password strength
         String passwordStrength = userService.getPasswordStrength(userDto.getPassword());
         if ("faible".equals(passwordStrength)) {
             return ResponseEntity.badRequest().body("Le mot de passe ne respecte pas les critères de validation.");
         }
+
         // Check CIN validity
         if (!userService.isCinValid(userDto.getCin())) {
             return ResponseEntity.badRequest().body("Le CIN n'est pas valide.");
         }
+
         // Check email validity
         if (!userService.isEmailValid(userDto.getEmail())) {
             return ResponseEntity.badRequest().body("L'adresse e-mail n'est pas valide.");
         }
-        // Generate unique username
-        String username = userService.generateUniqueUsername(userDto.getFirstName(), userDto.getLastName());
 
-        // Set isActive to false
-        userDto.setActive(false);
+        try {
+            User newUser = userService.register(userDto);
 
-        User newUser = userService.register(userDto);
+            // After successful registration, create a UserPrincipal
+            UserPrincipal userPrincipal = new UserPrincipal(newUser);
 
-        // After successful registration, create a UserPrincipal
-        UserPrincipal userPrincipal = new UserPrincipal(newUser);
+            // Generate JWT token
+            String token = jwtTokenProvider.generateJwtToken(userPrincipal);
 
-        // Generate JWT token
-        String token = jwtTokenProvider.generateJwtToken(userPrincipal);
+            // Prepare response with user details and token
+            Map<String, Object> response = new HashMap<>();
+            response.put("user", newUser);
+            response.put("token", token);
 
-        // Prepare response with user details and token
-        Map<String, Object> response = new HashMap<>();
-        response.put("user", newUser);
-        response.put("token", token);
-
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
+        } catch (CinExistException e) {
+            return ResponseEntity.badRequest().body("CIN already exists.");
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 
-/*
+    /*
     LOGIN
  */
 @PostMapping("/login")

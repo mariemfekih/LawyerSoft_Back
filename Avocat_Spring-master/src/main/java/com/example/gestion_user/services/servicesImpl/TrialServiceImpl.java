@@ -55,7 +55,16 @@ public class TrialServiceImpl implements TrialService {
     public List<Trial> getTrials() {
         return trialRepository.findAll();
     }
-
+    @Override
+    public List<Trial> getTrialsByCaseId(Long caseId) {
+        Optional<Case> optionalCase = caseRepository.findById(caseId);
+        if (optionalCase.isPresent()) {
+            Case caseInstance = optionalCase.get();
+            return caseInstance.getTrials();
+        } else {
+            throw new EntityNotFoundException("Case not found with id: " + caseId);
+        }
+    }
 
 
     @Override

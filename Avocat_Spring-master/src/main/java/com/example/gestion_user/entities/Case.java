@@ -1,6 +1,7 @@
 package com.example.gestion_user.entities;
 
 
+import com.example.gestion_user.entities.enums.CaseState;
 import com.example.gestion_user.entities.enums.CaseType;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
@@ -49,6 +50,10 @@ public class Case implements Serializable {
     @Enumerated(EnumType.STRING)
     private CaseType type;
 
+    @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
+    private CaseState state;
+
 
     /*
     RELATION ENTRE CASE AND TRIAL
@@ -81,14 +86,16 @@ case-contributor
     private List<Contributor> contributors;
 
     // Constructor with random reference generation
-    public Case(String title, String description, Date creationDate, Date closingDate, CaseType type) {
+    public Case(String title, String description, Date creationDate, Date closingDate, CaseType type,CaseState state){
         this.title = title;
         this.description = description;
         this.creationDate = creationDate;
         this.closingDate = closingDate;
         this.type = type;
+        this.state=state;
         this.reference = generateRandomReference();
     }
+
 
     // Method to generate random alphanumeric reference
     public String generateRandomReference() {

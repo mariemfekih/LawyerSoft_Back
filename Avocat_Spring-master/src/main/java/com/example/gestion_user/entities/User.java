@@ -3,11 +3,15 @@ package com.example.gestion_user.entities;
 import com.example.gestion_user.entities.enums.UserRole;
 import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.google.api.client.util.DateTime;
 import lombok.*;
 
 import javax.persistence.*;
 import java.io.Serializable;
+import java.sql.Blob;
+import java.time.LocalDate;
 import java.util.*;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Entity
 @Data
@@ -45,7 +49,7 @@ public class User implements Serializable {
     private UserRole role;
 
     @Column(nullable = false)
-    @Temporal(TemporalType.DATE)
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date birthDate;
 
@@ -56,8 +60,11 @@ public class User implements Serializable {
 
     @Column(nullable = false)
     private Boolean gender;
-
+    @Lob
+    private Blob image;
+  //  @Column(columnDefinition = "MEDIUMBLOB")
     private String profileImage;
+    //private String profileImage;
     private Date lastLoginDate;
     private Date lastLoginDateDisplay;
     private Date joinDate;
@@ -101,9 +108,14 @@ public class User implements Serializable {
 /*
 user-appointment
  */
+/*
     @OneToMany(mappedBy = "user")
     @JsonIgnore
-    private Set<Appointment> appointments;
+    private List<Appointment> appointments;
+*/
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Auxiliary> auxiliaries;
 
 }

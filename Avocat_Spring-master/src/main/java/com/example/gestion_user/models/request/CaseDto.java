@@ -1,5 +1,6 @@
 package com.example.gestion_user.models.request;
 
+import com.example.gestion_user.entities.enums.CaseState;
 import com.example.gestion_user.entities.enums.CaseType;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -26,4 +27,6 @@ public class CaseDto {
     private Date closingDate;
 
     private CaseType type;
+
+    private CaseState state;
 }

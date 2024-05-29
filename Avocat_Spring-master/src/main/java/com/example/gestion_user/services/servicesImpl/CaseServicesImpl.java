@@ -41,7 +41,7 @@ public class CaseServicesImpl implements CaseService {
     public Case addCase(CaseDto c, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
-        Case case1 = new Case(c.getTitle(), c.getDescription(), c.getCreationDate(), c.getClosingDate(), c.getType());
+        Case case1 = new Case(c.getTitle(), c.getDescription(), c.getCreationDate(), c.getClosingDate(), c.getType(),c.getState());
         case1.setUser(user);
 
         try {
@@ -63,6 +63,8 @@ public class CaseServicesImpl implements CaseService {
         existingCase.setCreationDate(updatedCaseDto.getCreationDate());
         existingCase.setClosingDate(updatedCaseDto.getClosingDate());
         existingCase.setType(updatedCaseDto.getType());
+        existingCase.setState(updatedCaseDto.getState());
+
 
         // Save the updated Case entity
         try {
@@ -148,20 +150,8 @@ public List<Case> getUserCases(Long userId) {
 
     }*/
 
-    //PARTIE MTAA CASE W TRIAL
-//    public void addTrialToCase(Long case_id, Trial trial) {
-//        Optional<Case> optionalCase = caseRepository.findById(case_id);
-//        if (optionalCase.isPresent()) {
-//            Case caseInstance = optionalCase.get();
-//            trial.setCaseInstance(caseInstance); // Associate the trial with the case
-//            caseInstance.getTrials().add(trial); // Add the trial to the case's list of trials
-//            // Save both the case and the trial entities
-//            caseRepository.save(caseInstance);
-//            trialRepository.save(trial);
-//        } else {
-//            throw new EntityNotFoundException("Case not found with id: " + case_id);
-//        }
-//    }
+    //PARTIE DE CASE W TRIAL
+/*
 
     public List<Trial> getTrialsByCaseId(Long caseId) {
         Optional<Case> optionalCase = caseRepository.findById(caseId);
@@ -219,7 +209,7 @@ public List<Case> getUserCases(Long userId) {
 
         // Sauvegarder les modifications de l'essai dans la base de données
         trialRepository.save(trialToUpdate);
-    }
+    }*/
 //Contributor
 
 

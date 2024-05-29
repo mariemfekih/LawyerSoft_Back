@@ -39,9 +39,9 @@ public interface CaseService {
     * Relation Trials and Case
     * */
     //void addTrialToCase(Long case_id, Trial trial) ;
-    List<Trial> getTrialsByCaseId(Long caseId);
+/*    List<Trial> getTrialsByCaseId(Long caseId);
     void deleteTrialFromCase(Long caseId, Long trialId);
-    void updateTrial(Long caseId, Long trialId, Trial updatedTrial);
+    void updateTrial(Long caseId, Long trialId, Trial updatedTrial);*/
 
     List<Case> getCasesWithoutFolders();
 

@@ -9,6 +9,7 @@ import com.example.gestion_user.repositories.CaseRepository;
 import com.example.gestion_user.repositories.UserRepository;
 //import com.example.gestion_user.security.LoginAttemptService;
 import com.example.gestion_user.security.LoginAttemptService;
+import com.example.gestion_user.services.EmailService;
 import com.example.gestion_user.services.UserService;
 import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.lang3.StringUtils;
@@ -23,14 +24,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import javax.mail.MessagingException;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 import static com.example.gestion_user.constants.FileConstant.*;
 import static com.example.gestion_user.constants.UserImplConstant.*;
@@ -47,6 +46,9 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private UserRepository userRepository;
     @Autowired
     private CaseRepository caseRepository;
+    @Autowired
+    private EmailService emailService;
+
    private Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Autowired
@@ -72,36 +74,109 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-//
-@Override
-public User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException {
-    validateNewUsernameAndEmail(EMPTY, generateUsername(userDto.getFirstName(), userDto.getLastName()), userDto.getEmail());
-    User user = new User();
-    String encodedPassword = encodePassword(userDto.getPassword());
-    user.setFirstName(userDto.getFirstName());
-    user.setLastName(userDto.getLastName());
-    user.setUsername(generateUsername(userDto.getFirstName(), userDto.getLastName()));
-    user.setCin(userDto.getCin());
-    user.setEmail(userDto.getEmail());
-    user.setPassword(encodedPassword);
-    user.setRole(UserRole.LAWYER);
-    user.setBirthDate(userDto.getBirthDate());
-    user.setCity(userDto.getCity());
-    user.setGender(userDto.getGender());
-    user.setJoinDate(new Date());
-    user.setActive(false);
-    user.setNotLocked(false);
-    user.setAuthorities(Role.ROLE_MANAGER.getAuthorities());
-    user.setProfileImage(getTemporaryProfileImage(user.getUsername()));
-    userRepository.save(user);
-    LOGGER.info("New user registered: " + user.getUsername());
-    return user;
-}
+    @Override
+    public User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException {
+        // Check for duplicate CIN
+        validateCin(userDto.getCin());
 
-    // Helper method to generate username from first name and last name
-    private String generateUsername(String firstName, String lastName) {
-        return (firstName + "." + lastName).toLowerCase();
+        // Ensure email and username are unique
+        validateNewUsernameAndEmail(EMPTY, generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()), userDto.getEmail());
+
+        User user = new User();
+        String encodedPassword = encodePassword(userDto.getPassword());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setUsername(generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()));
+        user.setCin(userDto.getCin());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(encodedPassword);
+        user.setRole(UserRole.LAWYER);
+        user.setBirthDate(userDto.getBirthDate());
+        user.setCity(userDto.getCity());
+        user.setGender(userDto.getGender());
+        user.setJoinDate(new Date());
+        user.setActive(false);
+        user.setNotLocked(false);
+        user.setAuthorities(Role.ROLE_MANAGER.getAuthorities());
+        user.setProfileImage(getTemporaryProfileImage(user.getUsername()));
+        userRepository.save(user);
+///////////////////////Envoi du mail merci pour inscri
+        String templateContent = emailService.loadTemplate("C:\\Users\\marie\\Documents\\Github\\LawyerSoft_Back\\Avocat_Spring-master\\src\\main\\resources\\calendar\\afterSignup.html");
+
+        // Replace placeholders in the template content
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("firstName", user.getFirstName());
+        placeholders.put("lastName", user.getLastName());
+
+        // Send email
+        emailService.sendMailTemplate(user.getEmail(), "Merci pour votre inscription ! Votre compte sera bientôt activé", templateContent, placeholders);
+        /////////////////////////
+        LOGGER.info("New user registered: " + user.getUsername());
+        return user;
     }
+//    @Override
+//    public User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException {
+//        // Check for duplicate CIN
+//        validateCin(userDto.getCin());
+//
+//        // Ensure email and username are unique
+//        validateNewUsernameAndEmail(EMPTY, generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()), userDto.getEmail());
+//
+//        User user = new User();
+//        String encodedPassword = encodePassword(userDto.getPassword());
+//        user.setFirstName(userDto.getFirstName());
+//        user.setLastName(userDto.getLastName());
+//        user.setUsername(generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()));
+//        user.setCin(userDto.getCin());
+//        user.setEmail(userDto.getEmail());
+//        user.setPassword(encodedPassword);
+//        user.setRole(UserRole.LAWYER);
+//        user.setBirthDate(userDto.getBirthDate());
+//        user.setCity(userDto.getCity());
+//        user.setGender(userDto.getGender());
+//        user.setJoinDate(new Date());
+//        user.setActive(false);
+//        user.setNotLocked(false);
+//        user.setAuthorities(Role.ROLE_MANAGER.getAuthorities());
+//        user.setProfileImage(getTemporaryProfileImage(user.getUsername()));
+//        userRepository.save(user);
+//
+//        LOGGER.info("New user registered: " + user.getUsername());
+//        return user;
+//    }
+
+    private void validateCin(String cin) throws CinExistException {
+        if (userRepository.existsByCin(cin)) {
+            throw new CinExistException("CIN already exists");
+        }
+    }
+
+//
+//@Override
+//public User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException {
+//    validateNewUsernameAndEmail(EMPTY, generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()), userDto.getEmail());
+//    User user = new User();
+//    String encodedPassword = encodePassword(userDto.getPassword());
+//    user.setFirstName(userDto.getFirstName());
+//    user.setLastName(userDto.getLastName());
+//    user.setUsername(generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()));
+//    user.setCin(userDto.getCin());
+//    user.setEmail(userDto.getEmail());
+//    user.setPassword(encodedPassword);
+//    user.setRole(UserRole.LAWYER);
+//    user.setBirthDate(userDto.getBirthDate());
+//    user.setCity(userDto.getCity());
+//    user.setGender(userDto.getGender());
+//    user.setJoinDate(new Date());
+//    user.setActive(false);
+//    user.setNotLocked(false);
+//    user.setAuthorities(Role.ROLE_MANAGER.getAuthorities());
+//    user.setProfileImage(getTemporaryProfileImage(user.getUsername()));
+//    userRepository.save(user);
+//    LOGGER.info("New user registered: " + user.getUsername());
+//    return user;
+//}
+
 
 
     @Override
@@ -125,24 +200,18 @@ public User register(UserDto userDto) throws UserNotFoundException, EmailExistEx
     }
     @Override
     public User updateUser(Long id, UserDto updatedUserDto) {
-        // Find the existing User entity by ID
         User existingUser = userRepository.findById(id).orElseThrow(() -> new NotFoundException("User not found with id: " + id));
-        // Update the fields of the existing User entity with values from the DTO
         existingUser.setFirstName(updatedUserDto.getFirstName());
         existingUser.setLastName(updatedUserDto.getLastName());
-       // existingUser.setUsername(updatedUserDto.getUsername());
         existingUser.setEmail(updatedUserDto.getEmail());
         existingUser.setCity(updatedUserDto.getCity());
         existingUser.setCin(updatedUserDto.getCin());
-        existingUser.setRole(updatedUserDto.getRole());
+        existingUser.setBirthDate(updatedUserDto.getBirthDate());
         existingUser.setGender(updatedUserDto.getGender());
-        existingUser.setActive(updatedUserDto.isActive());
-        existingUser.setNotLocked(updatedUserDto.isNotLocked());
-                try {
-            return userRepository.save(existingUser);
-        } catch (Exception ex) {
-            throw new NotFoundException("Failed to update user with id: " + id + ". " + ex.getMessage());
-        }
+      //  existingUser.setRole(updatedUserDto.getRole());
+        //existingUser.setUsername(updatedUserDto.getUsername()); // Add this line
+
+        return userRepository.save(existingUser);
     }
 
 
@@ -172,6 +241,10 @@ public User register(UserDto userDto) throws UserNotFoundException, EmailExistEx
     @Override
     public User getUserById(Long id) {
         return userRepository.getById(id);    }
+    @Override
+    public Optional<User> getUserByid(Long id) {
+        return userRepository.findById(id);
+    }
 
     @Override
     public User updateUserActiveState(Long userId, boolean newActiveState) throws Exception{
@@ -331,14 +404,24 @@ public User register(UserDto userDto) throws UserNotFoundException, EmailExistEx
         String baseUsername = firstName.toLowerCase() + "." + lastName.toLowerCase();
         String username = baseUsername;
         int counter = 1;
+        // Add logging to see the username generation process
+        System.out.println("Generating unique username...");
+        System.out.println("Base username: " + baseUsername);
         // Check if the base username is already taken
         while (getUserByUsername(username) != null) {
-            // Append the ID to the base username to make it unique
+            // Append the counter to the base username to make it unique
             username = baseUsername + counter;
             counter++;
+            System.out.println("Username already exists. Trying: " + username);
         }
+
+        System.out.println("Generated unique username: " + username);
         return username;
     }
+
+
+
+
 
 
 }
