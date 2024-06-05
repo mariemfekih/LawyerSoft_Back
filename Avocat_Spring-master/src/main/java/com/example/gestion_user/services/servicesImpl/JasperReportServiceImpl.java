@@ -33,9 +33,9 @@ public class JasperReportServiceImpl implements JasperReportService {
     ResourceLoader resourceLoader;
     public String generatePdf(Map <String, Object> params) {
         try {
-            JasperReport jasperReport = JasperCompileManager.compileReport("C:\\Users\\marie\\Documents\\Github\\LawyerSoft_Back\\Avocat_Spring-master\\src\\main\\resources\\templates\\test.jrxml");
+            JasperReport jasperReport = JasperCompileManager.compileReport("C:\\Users\\marie\\Documents\\Github\\LawyerSoft_Back\\Avocat_Spring-master\\src\\main\\resources\\templates\\contratFrancais.jrxml");
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, params, new JREmptyDataSource());
-            String outputFile = reportConstant.REPORT_RESULT_FOLDER+"test.pdf";
+            String outputFile = reportConstant.REPORT_RESULT_FOLDER+"contratFrancais.pdf";
             JasperExportManager.exportReportToPdfFile(jasperPrint, outputFile);
 
             return "PDF généré avec succès";
@@ -69,21 +69,7 @@ public class JasperReportServiceImpl implements JasperReportService {
         }
         return null;
     }
-  /*  @Override
-    public StringResult generatePdfReport(Map<String, Object> params) throws SQLException, IOException, JRException {
-        String reportName = (String) params.get("reportName");
-        Resource resource = resourceLoader.getResource("classpath:templates/" + reportName + ".jasper");
-        try (InputStream reportStream = resource.getInputStream();
-             Connection conn = this.dataSource.getConnection();
-             FileOutputStream fileOutputStream = new FileOutputStream(reportConstant.REPORT_RESULT_FOLDER + reportName + ".pdf")) {
-            params.put("REPORT_FOLDER", resourceLoader.getResource("classpath:templates/" + reportName + ".jasper").getFile().getAbsolutePath());
-            byte[] reportBytes = JasperRunManager.runReportToPdf(reportStream, params, conn);
-            fileOutputStream.write(reportBytes);
-            StringResult reportResult = new StringResult();
-            reportResult.setName(reportName + ".pdf");
-            return reportResult;
-        }
-    }*/
+
 
     public void generateReport(List<Case> cases) throws JRException {
 

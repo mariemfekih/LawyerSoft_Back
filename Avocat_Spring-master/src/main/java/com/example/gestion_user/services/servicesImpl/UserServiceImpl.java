@@ -90,7 +90,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setCin(userDto.getCin());
         user.setEmail(userDto.getEmail());
         user.setPassword(encodedPassword);
-        user.setRole(UserRole.LAWYER);
+        user.setRole(userDto.getRole());
         user.setBirthDate(userDto.getBirthDate());
         user.setCity(userDto.getCity());
         user.setGender(userDto.getGender());

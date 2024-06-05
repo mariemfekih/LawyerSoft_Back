@@ -1,0 +1,352 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- Created with Jaspersoft Studio version 6.21.0.final using JasperReports Library version 6.21.0-4f56c4f36cd19e17675219a9ac4692d5f0f13b06  -->
+<jasperReport xmlns="http://jasperreports.sourceforge.net/jasperreports" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://jasperreports.sourceforge.net/jasperreports http://jasperreports.sourceforge.net/xsd/jasperreport.xsd" name="contratFrancais" pageWidth="595" pageHeight="842" columnWidth="555" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="20" uuid="3508e390-c778-4574-9b34-c238263f62d2">
+	<parameter name="clientName" class="java.lang.String"/>
+	<parameter name="clientAddress" class="java.lang.String"/>
+	<parameter name="clientCIN" class="java.lang.String"/>
+	<parameter name="clientPhone" class="java.lang.String"/>
+	<parameter name="cadreService" class="java.lang.String"/>
+	<parameter name="FeeHour" class="java.lang.String"/>
+	<parameter name="forfait" class="java.lang.String"/>
+	<parameter name="accompte" class="java.lang.String"/>
+	<parameter name="lawyerName" class="java.lang.String"/>
+	<parameter name="lawyerAddress" class="java.lang.String"/>
+	<parameter name="lawyerPhone" class="java.lang.String"/>
+	<parameter name="lawyerCIN" class="java.lang.String"/>
+	<parameter name="nbDays" class="java.lang.String"/>
+	<parameter name="localisation" class="java.lang.String"/>
+	<parameter name="date" class="java.lang.String"/>
+	<queryString>
+		<![CDATA[]]>
+	</queryString>
+	<background>
+		<band splitType="Stretch"/>
+	</background>
+	<title>
+		<band height="45" splitType="Stretch">
+			<staticText>
+				<reportElement x="130" y="10" width="339" height="30" uuid="14bad099-37e5-4660-8864-99b86c2a4c16"/>
+				<textElement>
+					<font size="20" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Contrat de Services Juridiques]]></text>
+			</staticText>
+		</band>
+	</title>
+	<pageHeader>
+		<band height="44" splitType="Stretch">
+			<staticText>
+				<reportElement x="0" y="0" width="180" height="19" uuid="984e2161-f64e-497a-8951-622d5eb3c4a0"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Entre les soussignés :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="20" width="180" height="19" uuid="8955d1ff-aa32-4d23-bd49-4e3959fc0706"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Je soussigné :]]></text>
+			</staticText>
+		</band>
+	</pageHeader>
+	<columnHeader>
+		<band height="326" splitType="Stretch">
+			<staticText>
+				<reportElement x="20" y="0" width="70" height="18" uuid="87f11d0f-f0b9-4138-afa4-05e7aac30c16"/>
+				<text><![CDATA[Nom du client :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="19" width="40" height="22" uuid="bf4f71bf-d497-4c5f-af2a-ed364c18aa05"/>
+				<text><![CDATA[Adresse:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="41" width="52" height="18" uuid="6fb78097-acde-43e1-8390-3c84afe06ff9">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<text><![CDATA[Téléphone:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="59" width="22" height="16" uuid="6f97acea-d058-43f7-8b4d-c4f3490ea7c0">
+					<property name="com.jaspersoft.studio.unit.width" value="px"/>
+				</reportElement>
+				<text><![CDATA[CIN:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="76" width="240" height="14" uuid="ed1c871e-1b10-4347-969f-8ee50c823fd9"/>
+				<text><![CDATA[(Ci-après dénommé "le Client"),]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="90" y="0" width="240" height="18" uuid="b43565d4-6554-4b0b-93f3-97b4a7e04551"/>
+				<textFieldExpression><![CDATA[$P{clientName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="60" y="19" width="260" height="22" uuid="74d79109-b340-4d2a-a385-0d25adbc24a0"/>
+				<textFieldExpression><![CDATA[$P{clientAddress}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="42" y="59" width="280" height="15" uuid="0f544aea-c0b3-4fa2-8dc2-bec8abce459a"/>
+				<textFieldExpression><![CDATA[$P{clientCIN}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="72" y="41" width="250" height="18" uuid="0306705c-5cad-4856-97a7-7e5c44d2f833"/>
+				<textFieldExpression><![CDATA[$P{clientPhone}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="20" y="121" width="79" height="18" uuid="83d1b4ad-a43a-4b7d-adfa-f655b905adfd"/>
+				<text><![CDATA[Nom de l'avocat :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="140" width="40" height="17" uuid="3b488d9f-d883-4282-83c3-ed3a31668ef0">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<text><![CDATA[Adresse:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="157" width="52" height="17" uuid="118cb827-9ae6-4aa3-8599-8f0294da34a0">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<text><![CDATA[Téléphone:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="20" y="174" width="22" height="15" uuid="8ee35aec-2810-4a9c-8656-20ce916ab3a6"/>
+				<text><![CDATA[CIN:]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="190" width="240" height="18" uuid="e6baaecc-724b-44fc-8d72-451f851cddca">
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<text><![CDATA[(Ci-après dénommé "l'avocat"),]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="100" width="180" height="19" uuid="ff2d2bf9-80b4-48e5-93e1-d8309c00ba35"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[et je soussigné :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="208" width="100" height="18" uuid="eca3928c-4ef1-442d-ad3d-ca438ee3a07d"/>
+				<textElement>
+					<font size="12" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Préambule :]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="2" y="226" width="568" height="30" uuid="715545e8-b53a-4174-af81-021b7c3f46ce"/>
+				<text><![CDATA[Le Client désire engager les services de l'Avocat                                          pour le représenter et le conseiller dans le cadre 
+de                                    et l'Avocat accepte de fournir ces services selon les termes et conditions énoncés ci-dessous.]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="226" y="226" width="104" height="20" uuid="ef02b5ba-1925-4a92-a49b-6983fa09d03d"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{clientName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="20" y="239" width="80" height="17" uuid="d2427f0b-0c5c-4804-bd00-7a9f7a07ee7e">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{cadreService}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="256" width="150" height="18" uuid="0878292f-420e-4b4d-88ba-4d19c52e6497"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Il a été convenu ce qui suit :
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="-1" y="274" width="150" height="18" uuid="430b233c-fe90-442d-a69e-01487623de99"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Article 1 : Objet du Contrat ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="287" width="568" height="38" uuid="a75160d9-c8d5-416f-a548-334d53294542"/>
+				<text><![CDATA[ L'Avocat s'engage à fournir au Client des services juridiques comprenant, sans s'y limiter, des consultations, la préparation de documents juridiques, la représentation en justice, et toute autre activité connexe nécessaire à la bonne conduite du dossier du Client.
+]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="101" y="121" width="178" height="18" uuid="215d7140-4482-4412-a835-f7a850dffb97"/>
+				<textFieldExpression><![CDATA[$P{lawyerName}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="60" y="140" width="230" height="16" uuid="423348ca-3b26-4467-a25a-32db6717f391"/>
+				<textFieldExpression><![CDATA[$P{lawyerAddress}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="72" y="157" width="258" height="16" uuid="4d79a1d5-d370-4918-9218-bb3e37799cbd"/>
+				<textFieldExpression><![CDATA[$P{lawyerPhone}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="42" y="174" width="248" height="16" uuid="9c72a524-3e07-43fa-92e0-ea2a876c77d3"/>
+				<textFieldExpression><![CDATA[$P{lawyerCIN}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnHeader>
+	<detail>
+		<band height="267" splitType="Stretch">
+			<break>
+				<reportElement x="0" y="0" width="99" height="1" uuid="9440bec3-d2b0-4b63-8460-2e8e14688196"/>
+			</break>
+			<staticText>
+				<reportElement x="0" y="2" width="380" height="18" uuid="5e6f81f9-2a97-450d-9a39-64527ad2c9d4"/>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Article 2 : Honoraires et Modalités de Paiement ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="15" width="568" height="65" uuid="e0b575e6-8c6e-40e3-8578-f1484830e334"/>
+				<text><![CDATA[2.1. Les honoraires de l'Avocat sont fixés à            dinars de l'heure (ou forfaitaire de                dinars pour l'ensemble des services). 
+2.2. Un acompte de                 dinars sera versé à la signature du présent contrat. 
+2.3. Les frais et dépenses engagés par l'Avocat pour le compte du Client (frais de déplacement, frais de justice, etc.) seront remboursés par le Client sur présentation des justificatifs.
+]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="198" y="15" width="27" height="15" uuid="2367be7d-d744-446e-b4b0-e56085473b3b">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{FeeHour}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="380" y="15" width="40" height="15" uuid="99448ec6-c6e2-4225-af12-9a7224920f5c"/>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{forfait}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="92" y="40" width="40" height="15" uuid="ff231ccd-b10e-40ce-9d94-4b3500adf6b1">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{accompte}]]></textFieldExpression>
+			</textField>
+			<staticText>
+				<reportElement x="0" y="83" width="380" height="18" uuid="cb5bc6d5-4702-442a-9de9-41d7d9f43f19">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Article 3 : Obligations de l'Avocat ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="98" width="574" height="52" uuid="c235d382-7e30-4341-ae03-b9852c2a7402">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<text><![CDATA[3.1. L'Avocat s'engage à fournir ses services avec compétence et conformément aux règles déontologiques de la profession d'avocat. 
+3.2. L'Avocat informera régulièrement le Client de l'avancement de son dossier et consultera le Client avant toute décision importante.]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="150" width="380" height="18" uuid="6abc9927-3f79-41e0-8caf-9787fb8283f7">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Article 4 : Obligations du Client ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="165" width="558" height="44" uuid="0d9482dd-5a1e-4738-91c3-2cf6085ebb0f">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<text><![CDATA[4.1. Le Client s'engage à fournir à l'Avocat toutes les informations et documents nécessaires à la bonne gestion de son dossier.
+4.2. Le Client s'engage à régler les honoraires et frais conformément aux modalités prévues à l'article 2.
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="204" width="380" height="18" uuid="244270a8-fc08-441e-9226-b3b7d8c58c9c">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Article 5 : Durée et Résiliation 
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="222" width="539" height="44" uuid="54188ab9-6dda-4636-b8fc-705f0308b81c"/>
+				<text><![CDATA[5.1. Le présent contrat prend effet à compter de sa signature et restera en vigueur jusqu'à la conclusion du dossier. 
+5.2. Chaque partie peut résilier le contrat à tout moment, moyennant un préavis écrit de         jours. En cas de résiliation par le Client, celui-ci devra régler les honoraires dus pour les services rendus jusqu'à la date de résiliation.
+Article6]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="390" y="235" width="20" height="18" uuid="0f49bcb0-2765-4ea6-85e0-67c60b8c5a9d" />
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{nbDays}]]></textFieldExpression>
+			</textField>
+		</band>
+	</detail>
+	<columnFooter>
+		<band height="57" splitType="Stretch">
+			<staticText>
+				<reportElement x="2" y="0" width="380" height="18" uuid="0cb12426-5524-485f-8f77-8a301b20f243">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Article 6 : Confidentialité ]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="1" y="15" width="574" height="26" uuid="da163325-d2ed-4b4c-afdf-d99119f8d294">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<text><![CDATA[L'Avocat est tenu au secret professionnel et s'engage à garder confidentielles toutes les informations communiquées par le Client.
+]]></text>
+			</staticText>
+			<staticText>
+				<reportElement x="0" y="41" width="530" height="15" uuid="f4f0649d-4915-40db-a661-e8b798b3d033">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font size="11" isBold="true"/>
+				</textElement>
+				<text><![CDATA[Fait en deux exemplaires originaux, à [                         ], le [                         ].
+Fait en deux exemplaires originaux, à [                         ], le [                         ].
+]]></text>
+			</staticText>
+			<textField>
+				<reportElement x="205" y="41" width="78" height="14" uuid="592d25b9-bdd4-4b59-ae43-f37f79bc2d11">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{localisation}]]></textFieldExpression>
+			</textField>
+			<textField>
+				<reportElement x="305" y="41" width="64" height="14" uuid="a90ba0d8-009f-446e-8724-723a7d92137b">
+					<property name="com.jaspersoft.studio.unit.x" value="px"/>
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+				</reportElement>
+				<textElement textAlignment="Center"/>
+				<textFieldExpression><![CDATA[$P{date}]]></textFieldExpression>
+			</textField>
+		</band>
+	</columnFooter>
+	<pageFooter>
+		<band height="54" splitType="Stretch">
+			<staticText>
+				<reportElement x="1" y="10" width="574" height="26" uuid="6a72edbf-e9d6-4f0b-8a23-e580c06b02a7">
+					<property name="com.jaspersoft.studio.unit.y" value="px"/>
+					<property name="com.jaspersoft.studio.unit.height" value="px"/>
+				</reportElement>
+				<textElement>
+					<font isBold="true"/>
+				</textElement>
+				<text><![CDATA[Je soussigné, client :                                                                    je soussigné, avocat :                                                                      
+]]></text>
+			</staticText>
+		</band>
+	</pageFooter>
+	<summary>
+		<band height="42" splitType="Stretch"/>
+	</summary>
+</jasperReport>

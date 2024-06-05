@@ -77,5 +77,45 @@ public ResponseEntity<?> sendEmailTemplate(
 }
 /////////////////////
 
+    @PostMapping("/sendTemplate/id/{idUser}")
+    public ResponseEntity<String> sendEmailTemplateWithoutId(
+            @RequestParam("to") String to,
+            @RequestParam("subject") String subject,
+            @RequestParam("templatePath") String templatePath,
+            @RequestParam("firstName") String firstName,
+            @RequestParam("lastName") String lastName,
+            @PathVariable("idUser") Long idUser) {
+        try {
+            Optional<User> optionalUser = userService.getUserByid(idUser);
+            if (!optionalUser.isPresent()) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found");
+            }
+            User user = optionalUser.get();
+
+            logger.info("Sending email to: " + to + " from user " + user.getEmail() +
+                    ", subject: " + subject + ", templatePath: " + templatePath +
+                    ", firstName: " + firstName + ", lastName: " + lastName);
+
+            String templateContent = emailService.loadTemplate(templatePath);
+
+            Map<String, String> placeholders = new HashMap<>();
+            placeholders.put("firstName", firstName);
+            placeholders.put("lastName", lastName);
+
+            emailService.sendMailTemplate(to, subject, templateContent, placeholders);
+
+            return ResponseEntity.ok("Email sent successfully");
+        } catch (IOException e) {
+            logger.error("Failed to load email template: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to load email template: " + e.getMessage());
+        } catch (MessagingException e) {
+            logger.error("Failed to send email: {}", e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to send email: " + e.getMessage());
+        }
+    }
+
+
 
 }
