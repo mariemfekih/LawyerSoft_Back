@@ -17,16 +17,13 @@ import java.util.Optional;
 
 public interface UserService {
 
+   // User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException;
 
 
     public User addUser(UserDto user);
     public User updateUser(Long id, UserDto updatedUserDto);
-    User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException;
     User updateUserActiveState(Long userId, boolean newActiveState) throws Exception;
-
-    /*
-    DELETEEEE
-     */
+    User updateProfileImage(String username, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException;
     void deleteUser(String email) throws  UserNotFoundException;
     void deleteUser(Long id) throws  UserNotFoundException;
 
@@ -38,27 +35,12 @@ public interface UserService {
 
     public User getUserById(Long id);
     Optional<User> getUserByid(Long id);
+    String getTemporaryProfileImage(String username);
 
     UserDetails loadUserByUsername(String email) throws UsernameNotFoundException;
-
-
-
-
     //public void resetPassword(String email, String newPassword) throws MessagingException, EmailNotFoundException;
-
-    User updateProfileImage(String username, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException;
-
-
-
     //void resetPassword(String email) throws MessagingException, EmailNotFoundException;
-
-
-
-//user+case
     Case saveCase (Case case1);
-   // void addUserToCase(String email,String title);
-
-
 /*Controle de saisi*/
 String getPasswordStrength(String password);
 boolean isCinValid(String cin);

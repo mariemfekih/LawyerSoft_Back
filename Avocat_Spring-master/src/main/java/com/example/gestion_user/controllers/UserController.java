@@ -55,10 +55,6 @@ public class UserController  {
     @Autowired
     private AuthenticationManager authenticationManager;
 
-    @Autowired
-    private UserRepository userRepository;
-@Autowired
-private AppointmentService appointmentService;
 
     @PostMapping
     public ResponseEntity<User> addUser(@RequestBody UserDto u) {
@@ -79,8 +75,6 @@ private AppointmentService appointmentService;
         return ResponseEntity.ok(updatedUser);
     }
 
-
-
     @PutMapping("/{userId}/active")
     public ResponseEntity<User> updateUserActiveState(@PathVariable Long userId, @RequestBody boolean newActiveState) {
         try {
@@ -91,7 +85,21 @@ private AppointmentService appointmentService;
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/deleteUser/{email}")
+    @PreAuthorize("hasAnyAuthority('user:delete')")
+    public ResponseEntity<HttpResponse> deleteUser(@PathVariable("email") String email) throws  UserNotFoundException {
+        userService.deleteUser(email);
+        return response(OK, USER_DELETED_SUCCESSFULLY);
+    }
 
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{idUser}")
+    @PreAuthorize("hasAnyAuthority('user:delete')")
+    public ResponseEntity<Void> deleteUser(@PathVariable("idUser") Long idUser) throws UserNotFoundException {
+        userService.deleteUser(idUser);
+        return ResponseEntity.noContent().build();
+    }
 
     @GetMapping("/getUserByUsername/{username}")
     public ResponseEntity<User> getUserByUsername(@PathVariable("username") String username) {
@@ -113,6 +121,11 @@ private AppointmentService appointmentService;
         UserDto userDto = convertToDto(user);
         return ResponseEntity.ok(userDto);
     }
+    @GetMapping
+    public ResponseEntity<List<User>> getAllUsers() {
+        List<User> users = userService.getUsers();
+        return new ResponseEntity<>(users, OK);
+    }
 
     private UserDto convertToDto(User user) {
         UserDto userDto = new UserDto();
@@ -132,17 +145,45 @@ private AppointmentService appointmentService;
 
         return userDto;
     }
-    @GetMapping
-    public ResponseEntity<List<User>> getAllUsers() {
-        List<User> users = userService.getUsers();
-        return new ResponseEntity<>(users, OK);
+
+    private ResponseEntity<HttpResponse> response(HttpStatus httpStatus, String message) {
+        return new ResponseEntity<>(new HttpResponse(httpStatus.value(), httpStatus, httpStatus.getReasonPhrase().toUpperCase(),
+                message), httpStatus);
     }
 
 
+
+    /*Image*/
+    @PostMapping("/updateProfileImage")
+    public ResponseEntity<User> updateProfileImage(@RequestParam("username") String username, @RequestParam(value = "profileImage") MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
+        User user = userService.updateProfileImage(username, profileImage);
+        return new ResponseEntity<>(user, OK);
+    }
+
+ @GetMapping(path = "/image/{username}/{fileName}", produces = IMAGE_JPEG_VALUE)
+    public byte[] getProfileImage(@PathVariable("username") String username, @PathVariable("fileName") String fileName) throws IOException {
+        return Files.readAllBytes(Paths.get(USER_FOLDER + username + FORWARD_SLASH + fileName));
+    }
+
+    @GetMapping(path = "/image/profile/{username}", produces = IMAGE_JPEG_VALUE)
+    public byte[] getTempProfileImage(@PathVariable("username") String username) throws IOException {
+        URL url = new URL(TEMP_PROFILE_IMAGE_BASE_URL + username);
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+        try (InputStream inputStream = url.openStream()) {
+            int bytesRead;
+            byte[] chunk = new byte[1024];
+            while((bytesRead = inputStream.read(chunk)) > 0) {
+                byteArrayOutputStream.write(chunk, 0, bytesRead);
+            }
+        }
+        return byteArrayOutputStream.toByteArray();
+    }
+
+
+
+
+
     /*
-    REGISTERRRRR
-     */
-//
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody UserDto userDto) throws UserNotFoundException, UsernameExistException, EmailExistException, CinExistException, MessagingException {
         // Check password strength
@@ -183,9 +224,7 @@ private AppointmentService appointmentService;
         }
     }
 
-    /*
-    LOGIN
- */
+
 @PostMapping("/login")
 public ResponseEntity<?> login(@RequestBody UserDto userDto) {
     authenticate(userDto.getEmail(), userDto.getPassword());
@@ -213,57 +252,6 @@ public ResponseEntity<?> login(@RequestBody UserDto userDto) {
        HttpHeaders headers = new HttpHeaders();
        headers.add(JWT_TOKEN_HEADER, jwtTokenProvider.generateJwtToken(user));
        return headers;
-   }
-
-
-
-
-
-    @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/deleteUser/{email}")
-    @PreAuthorize("hasAnyAuthority('user:delete')")
-    public ResponseEntity<HttpResponse> deleteUser(@PathVariable("email") String email) throws  UserNotFoundException {
-        userService.deleteUser(email);
-        return response(OK, USER_DELETED_SUCCESSFULLY);
-    }
-
-    @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/{idUser}")
-    @PreAuthorize("hasAnyAuthority('user:delete')")
-    public ResponseEntity<Void> deleteUser(@PathVariable("idUser") Long idUser) throws UserNotFoundException {
-        userService.deleteUser(idUser);
-        return ResponseEntity.noContent().build();
-    }
-    private ResponseEntity<HttpResponse> response(HttpStatus httpStatus, String message) {
-        return new ResponseEntity<>(new HttpResponse(httpStatus.value(), httpStatus, httpStatus.getReasonPhrase().toUpperCase(),
-                message), httpStatus);
-    }
-
-    @PostMapping("/updateProfileImage")
-    public ResponseEntity<User> updateProfileImage(@RequestParam("username") String username, @RequestParam(value = "profileImage") MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
-        User user = userService.updateProfileImage(username, profileImage);
-        return new ResponseEntity<>(user, OK);
-    }
-
- @GetMapping(path = "/image/{username}/{fileName}", produces = IMAGE_JPEG_VALUE)
-    public byte[] getProfileImage(@PathVariable("username") String username, @PathVariable("fileName") String fileName) throws IOException {
-        return Files.readAllBytes(Paths.get(USER_FOLDER + username + FORWARD_SLASH + fileName));
-    }
-
-    @GetMapping(path = "/image/profile/{username}", produces = IMAGE_JPEG_VALUE)
-    public byte[] getTempProfileImage(@PathVariable("username") String username) throws IOException {
-        URL url = new URL(TEMP_PROFILE_IMAGE_BASE_URL + username);
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        try (InputStream inputStream = url.openStream()) {
-            int bytesRead;
-            byte[] chunk = new byte[1024];
-            while((bytesRead = inputStream.read(chunk)) > 0) {
-                byteArrayOutputStream.write(chunk, 0, bytesRead);
-            }
-        }
-        return byteArrayOutputStream.toByteArray();
-    }
-
-
+   }*/
 
 }

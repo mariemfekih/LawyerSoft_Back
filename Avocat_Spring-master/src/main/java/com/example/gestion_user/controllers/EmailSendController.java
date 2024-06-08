@@ -98,9 +98,16 @@ public ResponseEntity<?> sendEmailTemplate(
 
             String templateContent = emailService.loadTemplate(templatePath);
 
+            // Add placeholders for the template
             Map<String, String> placeholders = new HashMap<>();
             placeholders.put("firstName", firstName);
             placeholders.put("lastName", lastName);
+            placeholders.put("LAWYER_ID", idUser.toString()); // Adding the lawyer's ID as a placeholder
+
+            // Replace placeholders in the template content
+            for (Map.Entry<String, String> entry : placeholders.entrySet()) {
+                templateContent = templateContent.replace("{{" + entry.getKey() + "}}", entry.getValue());
+            }
 
             emailService.sendMailTemplate(to, subject, templateContent, placeholders);
 
@@ -115,6 +122,7 @@ public ResponseEntity<?> sendEmailTemplate(
                     .body("Failed to send email: " + e.getMessage());
         }
     }
+
 
 
 

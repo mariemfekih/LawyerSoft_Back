@@ -46,8 +46,7 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private UserRepository userRepository;
     @Autowired
     private CaseRepository caseRepository;
-    @Autowired
-    private EmailService emailService;
+
 
    private Logger LOGGER = LoggerFactory.getLogger(getClass());
 
@@ -56,129 +55,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private LoginAttemptService loginAttemptService;
-
-    @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        User user = userRepository.findByEmail(email);
-        if(user == null) {
-            LOGGER.error(NO_USER_FOUND_BY_EMAIL + email);
-            throw new UsernameNotFoundException(NO_USER_FOUND_BY_EMAIL + email);
-        } else {
-            validateLoginAttempt(user);
-            user.setLastLoginDateDisplay(user.getLastLoginDate());
-            user.setLastLoginDate(new Date());
-            userRepository.save(user);
-            UserPrincipal userPrincipal = new UserPrincipal(user);
-            LOGGER.info(FOUND_USER_BY_EMAIL + email);
-            return userPrincipal;
-        }
-    }
-
-    @Override
-    public User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException {
-        // Check for duplicate CIN
-        validateCin(userDto.getCin());
-
-        // Ensure email and username are unique
-        validateNewUsernameAndEmail(EMPTY, generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()), userDto.getEmail());
-
-        User user = new User();
-        String encodedPassword = encodePassword(userDto.getPassword());
-        user.setFirstName(userDto.getFirstName());
-        user.setLastName(userDto.getLastName());
-        user.setUsername(generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()));
-        user.setCin(userDto.getCin());
-        user.setEmail(userDto.getEmail());
-        user.setPassword(encodedPassword);
-        user.setRole(userDto.getRole());
-        user.setBirthDate(userDto.getBirthDate());
-        user.setCity(userDto.getCity());
-        user.setGender(userDto.getGender());
-        user.setJoinDate(new Date());
-        user.setActive(false);
-        user.setNotLocked(false);
-        user.setAuthorities(Role.ROLE_MANAGER.getAuthorities());
-        user.setProfileImage(getTemporaryProfileImage(user.getUsername()));
-        userRepository.save(user);
-///////////////////////Envoi du mail merci pour inscri
-        String templateContent = emailService.loadTemplate("C:\\Users\\marie\\Documents\\Github\\LawyerSoft_Back\\Avocat_Spring-master\\src\\main\\resources\\calendar\\afterSignup.html");
-
-        // Replace placeholders in the template content
-        Map<String, String> placeholders = new HashMap<>();
-        placeholders.put("firstName", user.getFirstName());
-        placeholders.put("lastName", user.getLastName());
-
-        // Send email
-        emailService.sendMailTemplate(user.getEmail(), "Merci pour votre inscription ! Votre compte sera bientôt activé", templateContent, placeholders);
-        /////////////////////////
-        LOGGER.info("New user registered: " + user.getUsername());
-        return user;
-    }
-//    @Override
-//    public User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException {
-//        // Check for duplicate CIN
-//        validateCin(userDto.getCin());
-//
-//        // Ensure email and username are unique
-//        validateNewUsernameAndEmail(EMPTY, generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()), userDto.getEmail());
-//
-//        User user = new User();
-//        String encodedPassword = encodePassword(userDto.getPassword());
-//        user.setFirstName(userDto.getFirstName());
-//        user.setLastName(userDto.getLastName());
-//        user.setUsername(generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()));
-//        user.setCin(userDto.getCin());
-//        user.setEmail(userDto.getEmail());
-//        user.setPassword(encodedPassword);
-//        user.setRole(UserRole.LAWYER);
-//        user.setBirthDate(userDto.getBirthDate());
-//        user.setCity(userDto.getCity());
-//        user.setGender(userDto.getGender());
-//        user.setJoinDate(new Date());
-//        user.setActive(false);
-//        user.setNotLocked(false);
-//        user.setAuthorities(Role.ROLE_MANAGER.getAuthorities());
-//        user.setProfileImage(getTemporaryProfileImage(user.getUsername()));
-//        userRepository.save(user);
-//
-//        LOGGER.info("New user registered: " + user.getUsername());
-//        return user;
-//    }
-
-    private void validateCin(String cin) throws CinExistException {
-        if (userRepository.existsByCin(cin)) {
-            throw new CinExistException("CIN already exists");
-        }
-    }
-
-//
-//@Override
-//public User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException {
-//    validateNewUsernameAndEmail(EMPTY, generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()), userDto.getEmail());
-//    User user = new User();
-//    String encodedPassword = encodePassword(userDto.getPassword());
-//    user.setFirstName(userDto.getFirstName());
-//    user.setLastName(userDto.getLastName());
-//    user.setUsername(generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()));
-//    user.setCin(userDto.getCin());
-//    user.setEmail(userDto.getEmail());
-//    user.setPassword(encodedPassword);
-//    user.setRole(UserRole.LAWYER);
-//    user.setBirthDate(userDto.getBirthDate());
-//    user.setCity(userDto.getCity());
-//    user.setGender(userDto.getGender());
-//    user.setJoinDate(new Date());
-//    user.setActive(false);
-//    user.setNotLocked(false);
-//    user.setAuthorities(Role.ROLE_MANAGER.getAuthorities());
-//    user.setProfileImage(getTemporaryProfileImage(user.getUsername()));
-//    userRepository.save(user);
-//    LOGGER.info("New user registered: " + user.getUsername());
-//    return user;
-//}
-
-
-
     @Override
     public User addUser(UserDto u){
         User user= new User();
@@ -192,6 +68,11 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         user.setGender(u.getGender());
         user.setActive(false);
         user.setNotLocked(false);
+
+        if(u.getRole()==UserRole.MANAGER){
+            user.setLawyerId(u.getLawyerId());
+        }else {user.setLawyerId(null);}
+
         try {
             return userRepository.save(user);
         } catch (Exception ex) {
@@ -208,19 +89,43 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         existingUser.setCin(updatedUserDto.getCin());
         existingUser.setBirthDate(updatedUserDto.getBirthDate());
         existingUser.setGender(updatedUserDto.getGender());
-      //  existingUser.setRole(updatedUserDto.getRole());
-        //existingUser.setUsername(updatedUserDto.getUsername()); // Add this line
+        if(existingUser.getRole()==UserRole.MANAGER){
+            existingUser.setLawyerId(updatedUserDto.getLawyerId());
+        }else {existingUser.setLawyerId(null);}
 
         return userRepository.save(existingUser);
     }
-
-
 
     @Override
     public User updateProfileImage(String username, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
         User user = validateNewUsernameAndEmail(username, null, null);
         saveProfileImage(user, profileImage);
         return user;
+    }
+    @Override
+    public User updateUserActiveState(Long userId, boolean newActiveState) throws Exception{
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            user.setActive(newActiveState);
+            userRepository.save(user);
+            return user;
+        } else {
+            throw new Exception("User with ID " + userId + " not found.");
+        }
+    }
+    @Override
+    public void deleteUser(Long idUser) {
+        userRepository.deleteById(idUser);
+    }
+
+    @Override
+    public void deleteUser(String email) throws  UserNotFoundException {
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            throw new UserNotFoundException("User with email " + email + " not found");
+        }
+        userRepository.delete(user);
     }
 
     @Override
@@ -245,31 +150,22 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     public Optional<User> getUserByid(Long id) {
         return userRepository.findById(id);
     }
-
     @Override
-    public User updateUserActiveState(Long userId, boolean newActiveState) throws Exception{
-        Optional<User> userOptional = userRepository.findById(userId);
-        if (userOptional.isPresent()) {
-            User user = userOptional.get();
-            user.setActive(newActiveState);
-            userRepository.save(user);
-            return user;
-        } else {
-            throw new Exception("User with ID " + userId + " not found.");
-        }
-    }
-    @Override
-    public void deleteUser(String email) throws  UserNotFoundException {
+    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
         User user = userRepository.findByEmail(email);
-        if (user == null) {
-            throw new UserNotFoundException("User with email " + email + " not found");
+        if(user == null) {
+            LOGGER.error(NO_USER_FOUND_BY_EMAIL + email);
+            throw new UsernameNotFoundException(NO_USER_FOUND_BY_EMAIL + email);
+        } else {
+            validateLoginAttempt(user);
+            user.setLastLoginDateDisplay(user.getLastLoginDate());
+            user.setLastLoginDate(new Date());
+            userRepository.save(user);
+            UserPrincipal userPrincipal = new UserPrincipal(user);
+            LOGGER.info(FOUND_USER_BY_EMAIL + email);
+            return userPrincipal;
         }
-        userRepository.delete(user);
     }
-    public void deleteUser(Long idUser) {
-        userRepository.deleteById(idUser);
-    }
-
 
     private void saveProfileImage(User user, MultipartFile profileImage) throws IOException, NotAnImageFileException {
         if (profileImage != null) {
@@ -288,28 +184,37 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             LOGGER.info(FILE_SAVED_IN_FILE_SYSTEM + profileImage.getOriginalFilename());
         }
     }
-
     private String setProfileImage(String username) {
         return ServletUriComponentsBuilder.fromCurrentContextPath().path(USER_IMAGE_PATH + username + FORWARD_SLASH
                 + username + DOT + JPG_EXTENSION).toUriString();
     }
-
     private Role getRoleEnumName(String role) {
         return Role.valueOf(role.toUpperCase());
     }
 
-    private String getTemporaryProfileImage(String username) {
+    @Override
+    public String getTemporaryProfileImage(String username) {
         return ServletUriComponentsBuilder.fromCurrentContextPath().path(DEFAULT_USER_IMAGE_PATH + username).toUriString();
     }
 
-    private String encodePassword(String password) {
-        return passwordEncoder.encode(password);
+    @Override
+    public Case saveCase(Case case1){
+        return caseRepository.save(case1);
     }
+
+
+
+
+
+    /*Controle de saisi*/
+
 
     private String generateUserId() {
         return RandomStringUtils.randomNumeric(10);
     }
-
+    private String encodePassword(String password) {
+        return passwordEncoder.encode(password);
+    }
     private void validateLoginAttempt(User user) {
         if(user.isNotLocked()) {
             if(loginAttemptService.hasExceededMaxAttempts(user.getUsername())) {
@@ -321,7 +226,40 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             loginAttemptService.removeUserFromLoginAttemptCache(user.getUsername());
         }
     }
-
+    public String getPasswordStrength(String password) {
+        if (password == null || password.isEmpty()) {
+            return "faible";
+        } else if (password.length() < 8) {
+            return "faible";
+        } else if (!password.matches(".*\\d.*")) {
+            return "faible";
+        } else if (!password.matches(".*[a-z].*")) {
+            return "faible";
+        } else if (!password.matches(".*[A-Z].*")) {
+            return "faible";
+        } else if (!password.matches(".*[!@#$%^&*()-_=+\\\\|\\[{\\]};:'\",<.>/?].*")) {
+            return "faible";
+        } else if (password.length() < 12 ||
+                !password.matches(".*\\d.*") ||
+                !password.matches(".*[A-Z].*") ||
+                !password.matches(".*[a-z].*") ||
+                !password.matches(".*[!@#$%^&*()-_=+\\\\|\\[{\\]};:'\",<.>/?].*")) {
+            return "moyenne";
+        } else {
+            return "fort";
+        }
+    }
+    private void validateCin(String cin) throws CinExistException {
+        if (userRepository.existsByCin(cin)) {
+            throw new CinExistException("CIN already exists");
+        }
+    }
+    public boolean isCinValid(String cin) {
+        if (cin == null || !cin.matches("[0-1]\\d{7}")) {
+            return false; // CIN must be 8 numbers starting with 0 or 1
+        }
+        return true; // CIN is valid
+    }
     private User validateNewUsernameAndEmail(String currentUsername, String newUsername, String newEmail) throws UserNotFoundException, UsernameExistException, EmailExistException {
         User userByNewUsername = getUserByUsername(newUsername);
         User userByNewEmail = getUserByEmail(newEmail);
@@ -348,52 +286,6 @@ public class UserServiceImpl implements UserService, UserDetailsService {
         }
     }
 
-
-    @Override
-    public Case saveCase(Case case1){
-        return caseRepository.save(case1);
-    }
-
-//    @Override
-//    public void addUserToCase(String email, String title){
-//      Case case1 =caseRepository.findByTitle(title);
-//      User user=userRepository.findByEmail(email);
-//      case1.getUsers().add(user);
-//    }
-
-
-
-    /*Controle de saisi*/
-    public String getPasswordStrength(String password) {
-        if (password == null || password.isEmpty()) {
-            return "faible";
-        } else if (password.length() < 8) {
-            return "faible";
-        } else if (!password.matches(".*\\d.*")) {
-            return "faible";
-        } else if (!password.matches(".*[a-z].*")) {
-            return "faible";
-        } else if (!password.matches(".*[A-Z].*")) {
-            return "faible";
-        } else if (!password.matches(".*[!@#$%^&*()-_=+\\\\|\\[{\\]};:'\",<.>/?].*")) {
-            return "faible";
-        } else if (password.length() < 12 ||
-                !password.matches(".*\\d.*") ||
-                !password.matches(".*[A-Z].*") ||
-                !password.matches(".*[a-z].*") ||
-                !password.matches(".*[!@#$%^&*()-_=+\\\\|\\[{\\]};:'\",<.>/?].*")) {
-            return "moyenne";
-        } else {
-            return "fort";
-        }
-    }
-
-    public boolean isCinValid(String cin) {
-        if (cin == null || !cin.matches("[0-1]\\d{7}")) {
-            return false; // CIN must be 8 numbers starting with 0 or 1
-        }
-        return true; // CIN is valid
-    }
     public boolean isEmailValid(String email) {
         if (email == null || email.isEmpty()) {
             return false; // Email cannot be null or empty
@@ -421,6 +313,49 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
 
 
+
+
+    /*    @Override
+    public User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException {
+        // Check for duplicate CIN
+        validateCin(userDto.getCin());
+
+        // Ensure email and username are unique
+        validateNewUsernameAndEmail(EMPTY, generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()), userDto.getEmail());
+
+        User user = new User();
+        String encodedPassword = encodePassword(userDto.getPassword());
+        user.setFirstName(userDto.getFirstName());
+        user.setLastName(userDto.getLastName());
+        user.setUsername(generateUniqueUsername(userDto.getFirstName(), userDto.getLastName()));
+        user.setCin(userDto.getCin());
+        user.setEmail(userDto.getEmail());
+        user.setPassword(encodedPassword);
+        user.setRole(userDto.getRole());
+        user.setBirthDate(userDto.getBirthDate());
+        user.setCity(userDto.getCity());
+        user.setGender(userDto.getGender());
+        user.setJoinDate(new Date());
+        user.setActive(false);
+        user.setNotLocked(false);
+        user.setLawyerId(null);
+        user.setAuthorities(Role.ROLE_MANAGER.getAuthorities());
+        user.setProfileImage(getTemporaryProfileImage(user.getUsername()));
+        userRepository.save(user);
+///////////////////////Envoi du mail merci pour inscri
+        String templateContent = emailService.loadTemplate("C:\\Users\\marie\\Documents\\Github\\LawyerSoft_Back\\Avocat_Spring-master\\src\\main\\resources\\calendar\\afterSignup.html");
+
+        // Replace placeholders in the template content
+        Map<String, String> placeholders = new HashMap<>();
+        placeholders.put("firstName", user.getFirstName());
+        placeholders.put("lastName", user.getLastName());
+
+        // Send email
+        emailService.sendMailTemplate(user.getEmail(), "Merci pour votre inscription ! Votre compte sera bientôt activé", templateContent, placeholders);
+        /////////////////////////
+        LOGGER.info("New user registered: " + user.getUsername());
+        return user;
+    }*/
 
 
 

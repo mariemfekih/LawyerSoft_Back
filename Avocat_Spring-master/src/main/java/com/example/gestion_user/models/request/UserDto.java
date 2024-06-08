@@ -44,7 +44,7 @@ public class UserDto {
 
     private boolean active;
     private boolean notLocked;
-
+    private Long lawyerId;
     private String username;
     @Temporal(TemporalType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")

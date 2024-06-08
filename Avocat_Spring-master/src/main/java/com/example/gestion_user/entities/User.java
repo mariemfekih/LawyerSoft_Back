@@ -71,7 +71,7 @@ public class User implements Serializable {
     private String[] authorities;
     private boolean isActive = false;
     private boolean isNotLocked;
-
+    private Long lawyerId;
     /*
      * Controle de sais
      * */
