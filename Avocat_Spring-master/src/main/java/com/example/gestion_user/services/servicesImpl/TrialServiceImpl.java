@@ -1,8 +1,12 @@
 package com.example.gestion_user.services.servicesImpl;
 
 import com.example.gestion_user.entities.Case;
+import com.example.gestion_user.entities.Contributor;
 import com.example.gestion_user.entities.Court;
 import com.example.gestion_user.entities.Trial;
+import com.example.gestion_user.exceptions.NotFoundException;
+import com.example.gestion_user.models.request.CaseDto;
+import com.example.gestion_user.models.request.TrialDto;
 import com.example.gestion_user.repositories.CaseRepository;
 import com.example.gestion_user.repositories.CourtRepository;
 import com.example.gestion_user.repositories.TrialRepository;
@@ -43,8 +47,28 @@ public class TrialServiceImpl implements TrialService {
         }
     }
     @Override
-    public Trial updateTrial(Trial trial) {
-        return trialRepository.save(trial);
+    public Trial updateTrial(Long id, TrialDto updatedTrialDto) {
+        // Find the existing Trial entity by ID
+        Trial existingTrial = trialRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Trial not found with id: " + id));
+
+        // Update the fields of the existing Trial entity with values from the DTO
+        existingTrial.setTitle(updatedTrialDto.getTitle());
+        existingTrial.setDescription(updatedTrialDto.getDescription());
+        existingTrial.setJudgement(updatedTrialDto.getJudgement());
+
+        if (updatedTrialDto.getCourtInstance()!= null && updatedTrialDto.getCourtInstance().getIdCourt()!= null) {
+            Court courtInstance = courtRepository.findById(updatedTrialDto.getCourtInstance().getIdCourt())
+                    .orElseThrow(() -> new EntityNotFoundException("Court not found with id: " + updatedTrialDto.getCourtInstance().getIdCourt()));
+            existingTrial.setCourtInstance(courtInstance);
+        }
+
+        // Save the updated Trial entity
+        try {
+            return trialRepository.save(existingTrial);
+        } catch (Exception ex) {
+            throw new NotFoundException("Failed to update trial with id: " + id + ". " + ex.getMessage());
+        }
     }
 
     @Override
@@ -95,5 +119,22 @@ public class TrialServiceImpl implements TrialService {
        return  trialRepository.save(trialToUpdate);
     }
 
+    @Override
+    public void deleteTrialFromCase(Long caseId, Long trialId) {
+        Case caseInstance = caseRepository.findById(caseId)
+                .orElseThrow(() -> new EntityNotFoundException("Case not found with id: " + caseId));
+
+        Trial trialToDelete = trialRepository.findById(trialId)
+                .orElseThrow(() -> new EntityNotFoundException("Trial not found with id: " + trialId));
+
+        // Verify if the trial belongs to the specified case
+        if (!caseInstance.getTrials().contains(trialToDelete)) {
+            throw new IllegalArgumentException("The specified Trial does not belong to the specified case.");
+        }
+
+        caseInstance.getTrials().remove(trialToDelete);
+        caseRepository.save(caseInstance);
+        trialRepository.delete(trialToDelete);
+    }
 
 }

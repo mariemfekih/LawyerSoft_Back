@@ -70,7 +70,7 @@ public class AuxiliaryController {
     }
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Auxiliary>> getUserAuxiliaries(@PathVariable Long userId) {
-        List<Auxiliary> auxiliaries = auxiliaryService.getUserAuxiliary(userId);
+        List<Auxiliary> auxiliaries = auxiliaryService.getUserAuxiliaries(userId);
         return ResponseEntity.ok(auxiliaries);
     }
 

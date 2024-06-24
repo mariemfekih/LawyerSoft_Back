@@ -2,10 +2,12 @@ package com.example.gestion_user.services.servicesImpl;
 
 import com.example.gestion_user.entities.Auxiliary;
 import com.example.gestion_user.entities.Case;
+import com.example.gestion_user.entities.Contributor;
 import com.example.gestion_user.entities.User;
 import com.example.gestion_user.exceptions.NotFoundException;
 import com.example.gestion_user.models.request.AuxiliaryDto;
 import com.example.gestion_user.repositories.AuxiliaryRepository;
+import com.example.gestion_user.repositories.ContributorRepository;
 import com.example.gestion_user.repositories.UserRepository;
 import com.example.gestion_user.services.AuxiliaryService;
 import lombok.AllArgsConstructor;
@@ -20,6 +22,8 @@ public class AuxiliaryServiceImpl implements AuxiliaryService {
     AuxiliaryRepository auxiliaryRepository;
     @Autowired
     UserRepository userRepository;
+    @Autowired
+    ContributorRepository contributorRepository;
     @Override
     public Auxiliary addAuxiliary(AuxiliaryDto a, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
@@ -38,6 +42,7 @@ public class AuxiliaryServiceImpl implements AuxiliaryService {
         auxiliary.setPhone(a.getPhone());
         auxiliary.setCity(a.getCity());
         auxiliary.setBirthDate(a.getBirthDate());
+        auxiliary.setGender(a.getGender());
         auxiliary.setUser(user);
 
         try {
@@ -68,6 +73,7 @@ public class AuxiliaryServiceImpl implements AuxiliaryService {
         existingAuxiliary.setPhone(updatedAuxiliaryDto.getPhone());
         existingAuxiliary.setCity(updatedAuxiliaryDto.getCity());
         existingAuxiliary.setBirthDate(updatedAuxiliaryDto.getBirthDate());
+        existingAuxiliary.setGender(updatedAuxiliaryDto.getGender());
 
         // Save the updated Auxiliary entity
         try {
@@ -90,7 +96,7 @@ public class AuxiliaryServiceImpl implements AuxiliaryService {
         return auxiliaryRepository.findById(idAuxiliary).get();
     }
     @Override
-    public List<Auxiliary> getUserAuxiliary(Long userId) {
+    public List<Auxiliary> getUserAuxiliaries(Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
         return user.getAuxiliaries();
     }
@@ -108,4 +114,5 @@ public class AuxiliaryServiceImpl implements AuxiliaryService {
         List<Auxiliary> auxiliaries = auxiliaryRepository.findAllByUser(user);
         return auxiliaries.size();
     }
+
 }

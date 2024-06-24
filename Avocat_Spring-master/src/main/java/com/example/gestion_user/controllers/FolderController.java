@@ -1,7 +1,9 @@
 package com.example.gestion_user.controllers;
 
+import com.example.gestion_user.entities.Case;
 import com.example.gestion_user.entities.Fee;
 import com.example.gestion_user.entities.Folder;
+import com.example.gestion_user.exceptions.NotFoundException;
 import com.example.gestion_user.models.request.FolderDto;
 import com.example.gestion_user.services.FolderService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -9,7 +11,9 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("Folder")
@@ -18,33 +22,40 @@ public class FolderController {
     @Autowired
     FolderService folderService;
 
-    @PostMapping("/{caseId}")
-    public ResponseEntity<Folder> addFolder(@RequestBody FolderDto f, @PathVariable Long caseId) {
-        Folder addedFolder = folderService.addFolder(f, caseId);
+    @PostMapping("/{customerId}")
+    public ResponseEntity<String> addFolder( @PathVariable Long customerId) {
+        String addedFolder = folderService.addFolder(customerId);
         return ResponseEntity.status(HttpStatus.CREATED).body(addedFolder);
     }
-    @PutMapping("/{id}")
-    public ResponseEntity<Folder> updateFolder(
-            @PathVariable("id") Long id,
-            @RequestBody FolderDto updatedFolderDto) {
-        Folder updatedFolder = folderService.updateFolder(id, updatedFolderDto);
-        return ResponseEntity.ok(updatedFolder);
+/*    @PutMapping("/{path}/updateFileName/{newName}")
+    public ResponseEntity<String> updateFileNameByPath(@PathVariable("path") String path,
+                                                       @PathVariable("newName") String newName) {
+        try {
+            folderService.updateFolderName(path, newName);
+            return ResponseEntity.ok("File name updated successfully");
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Failed to update file name: " + e.getMessage());
+        }
+    }*/
+@PutMapping("/{path}/updateFileName/{newName}")
+public ResponseEntity<Map<String, String>> updateFileNameByPath(@PathVariable("path") String path,
+                                                                @PathVariable("newName") String newName) {
+    try {
+        folderService.updateFolderName(path, newName);
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "File name updated successfully");
+        return ResponseEntity.ok(response);
+    } catch (Exception e) {
+        Map<String, String> response = new HashMap<>();
+        response.put("error", "Failed to update file name: " + e.getMessage());
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
-
-//    @PutMapping("/{id}")
-//    public ResponseEntity<Folder> updateFolder(@PathVariable Long id,@RequestBody FolderDto updatedFolder) {
-//        Folder existingFolder = folderService.getFolderById(id);
-//        if (existingFolder == null) {
-//            return ResponseEntity.notFound().build();
-//        }
-//        Folder folder = folderService.updateFolder(id,updatedFolder);
-//        return ResponseEntity.ok().body(folder);
-//    }
-
+}
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping("/{idFolder}")
-    public void deleteFolder(@PathVariable("idFolder") Long idFolder) {
-        folderService.deleteFolder(idFolder);
+    @DeleteMapping("/{path}")
+    public void deleteFolder(@PathVariable("path") String path) {
+        folderService.deleteFolderByPath(path);
     }
 
     @GetMapping
@@ -67,7 +78,43 @@ public class FolderController {
             return ResponseEntity.notFound().build();
         }
     }
+    @PostMapping("/addSubfolder/{parentFolderId}/{caseId}")
+    public ResponseEntity<?> addSubFolder(@PathVariable Long parentFolderId, @PathVariable Long caseId) {
+        try {
+            Folder subFolder = folderService.addSubFolder(caseId, parentFolderId);
+            return ResponseEntity.ok(subFolder); // Return the created sub-folder
+        } catch (NotFoundException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Failed to add sub-folder: " + e.getMessage());
+        }
+    }
 
-
+    @GetMapping("/{parentFolderId}/subfolders")
+    public ResponseEntity<List<Folder>> getSubfolders(@PathVariable Long parentFolderId) {
+        List<Folder> subfolders = folderService.getSubfolders(parentFolderId);
+        if (subfolders.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(subfolders);
+    }
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Folder>> getFoldersByUserId(@PathVariable Long userId) {
+        try {
+            List<Folder> folders = folderService.getFoldersByUserId(userId);
+            return ResponseEntity.ok(folders);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+    @GetMapping("/path/{folderPath}")
+    public ResponseEntity<?> getFolderIdByPath(@PathVariable String folderPath) {
+        Long fileId = folderService.getIdByPath(folderPath);
+        if (fileId != null) {
+            return ResponseEntity.ok("File ID: " + fileId);
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("File not found for path: " + folderPath);
+        }
+    }
 
 }

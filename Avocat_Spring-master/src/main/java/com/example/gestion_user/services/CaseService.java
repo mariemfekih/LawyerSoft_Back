@@ -13,15 +13,15 @@ import java.time.LocalDate;
 import java.util.List;
 
 public interface CaseService {
-
-  //  Case addCase (CaseDto c) ;
-    Case addCase(CaseDto c, Long userId);
+   Case addCase(CaseDto c, Long userId,Long customerId);
+  //  Case addCase(CaseDto c, Long userId);
     Case updateCase (Long idCase,CaseDto c) ;
 
     void deleteCase (Long idCase) ;
     List<Case> getCases() ;
     Case getCaseById (Long idCase);
   List<Case> getUserCases(Long userId);
+  List<Case> getUserCasesWithoutFolder(Long userId);
    // public Case getCaseByTitle(String title);
 
 
@@ -46,6 +46,8 @@ public interface CaseService {
     List<Case> getCasesWithoutFolders();
 
     void addContributorToCase(Long caseId, ContributorDto contributorDTO);
-    List<Contributor> getContributorsByCaseId(Long caseId);
+  void updateContributor(Long contributorId, ContributorDto contributorDTO);
+  List<Contributor> getContributorsByCaseId(Long caseId);
     void deleteContributorFromCase(Long caseId,Long contributorId);
+  Contributor getContributorById(Long id);
 }

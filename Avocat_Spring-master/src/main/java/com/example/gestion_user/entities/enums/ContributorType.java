@@ -10,6 +10,6 @@ public enum ContributorType {
     REPORTER,
     LEGAL_COUNSEL,
     INVESTIGATING_JUDGE,
-    CUSTOMER,
+    //CUSTOMER,
     LAWYER
 }

@@ -20,7 +20,7 @@ public class FeeDto {
 
     private LocalDate date ;
 
-    private FeeType type ;
+   // private FeeType type ;
 
     private String remain ;
 }

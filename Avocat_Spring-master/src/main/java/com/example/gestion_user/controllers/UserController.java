@@ -11,12 +11,16 @@ import com.example.gestion_user.models.request.UserDto;
 import com.example.gestion_user.repositories.UserRepository;
 //import com.example.gestion_user.security.JWTTokenProvider;
 import com.example.gestion_user.security.JWTTokenProvider;
+import com.example.gestion_user.services.AlfrescoService;
 import com.example.gestion_user.services.AppointmentService;
 import com.example.gestion_user.services.UserService;
 //import com.sun.xml.internal.messaging.saaj.packaging.mime.MessagingException;
+import org.apache.chemistry.opencmis.client.api.Document;
+import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -51,28 +55,47 @@ public class UserController  {
     @Autowired
     private UserService userService;
     @Autowired
+    private AlfrescoService alfrescoService;
+    @Autowired
     private JWTTokenProvider jwtTokenProvider;
     @Autowired
     private AuthenticationManager authenticationManager;
 
-
     @PostMapping
+    public ResponseEntity<User> addUser(@RequestBody UserDto userDto) {
+        try {
+            User addedUser = userService.addUser(userDto);
+            return ResponseEntity.status(HttpStatus.CREATED).body(addedUser);
+        } catch (IOException ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
+    }
+/*    @PostMapping
     public ResponseEntity<User> addUser(@RequestBody UserDto u) {
         User addedUser = userService.addUser(u);
         return ResponseEntity.status(HttpStatus.CREATED).body(addedUser);
-    }
+    }*/
 
-@PutMapping("/{idUser}")
-    public ResponseEntity<User> updateUser(@PathVariable Long idUser, @RequestBody UserDto updatedUserDto) {
+    @PutMapping("/{idUser}")
+    public ResponseEntity<User> updateUser(
+            @PathVariable Long idUser,
+            @RequestBody UserDto updatedUserDto
+    ) {
+        // Check if the user exists
         User existingUser = userService.getUserById(idUser);
-
         if (existingUser == null) {
-            // If the User doesn't exist, return a 404 Not Found response
-            return ResponseEntity.notFound().build();
+            return ResponseEntity.notFound().build(); // Return 404 if user not found
         }
-        User updatedUser = userService.updateUser(idUser, updatedUserDto);
-        // Return the updated User with a 200 OK status
-        return ResponseEntity.ok(updatedUser);
+
+        // Update the user's details and optionally the profile image
+        User updatedUser;
+        try {
+            updatedUser = userService.updateUser(idUser, updatedUserDto);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build(); // Handle error during update
+        }
+
+        return ResponseEntity.ok(updatedUser); // Return updated user with 200 OK status
     }
 
     @PutMapping("/{userId}/active")
@@ -113,13 +136,12 @@ public class UserController  {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<UserDto> getUserById(@PathVariable("id") Long id) {
+    public ResponseEntity<User> getUserById(@PathVariable("id") Long id) {
         User user = userService.getUserById(id); // Assuming getUserById() returns User directly
         if (user == null) {
             return ResponseEntity.notFound().build();
         }
-        UserDto userDto = convertToDto(user);
-        return ResponseEntity.ok(userDto);
+        return ResponseEntity.ok(user);
     }
     @GetMapping
     public ResponseEntity<List<User>> getAllUsers() {
@@ -139,8 +161,6 @@ public class UserController  {
         userDto.setGender(user.getGender());
         userDto.setActive(user.isActive());
         userDto.setNotLocked(user.isNotLocked());
-        userDto.setUsername(user.getUsername());
-        userDto.setJoinDate(user.getJoinDate());
 
 
         return userDto;
@@ -154,11 +174,11 @@ public class UserController  {
 
 
     /*Image*/
-    @PostMapping("/updateProfileImage")
+/*    @PostMapping("/updateProfileImage")
     public ResponseEntity<User> updateProfileImage(@RequestParam("username") String username, @RequestParam(value = "profileImage") MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
         User user = userService.updateProfileImage(username, profileImage);
         return new ResponseEntity<>(user, OK);
-    }
+    }*/
 
  @GetMapping(path = "/image/{username}/{fileName}", produces = IMAGE_JPEG_VALUE)
     public byte[] getProfileImage(@PathVariable("username") String username, @PathVariable("fileName") String fileName) throws IOException {
@@ -180,7 +200,19 @@ public class UserController  {
     }
 
 
-
+    @GetMapping("/profileImage/{fileId}")
+    public ResponseEntity<byte[]> getProfileImage(@PathVariable String fileId) {
+        try {
+            Document document = alfrescoService.getFileById(fileId);
+            ContentStream contentStream = document.getContentStream();
+            byte[] imageBytes = contentStream.getStream().readAllBytes();
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.valueOf(document.getContentStreamMimeType()));
+            return new ResponseEntity<>(imageBytes, headers, HttpStatus.OK);
+        } catch (IOException e) {
+            throw new NotFoundException("Image not found: " + e.getMessage());
+        }
+    }
 
 
     /*

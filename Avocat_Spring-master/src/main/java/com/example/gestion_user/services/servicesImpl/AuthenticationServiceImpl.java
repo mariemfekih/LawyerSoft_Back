@@ -9,6 +9,7 @@ import com.example.gestion_user.exceptions.UsernameExistException;
 import com.example.gestion_user.models.request.UserDto;
 import com.example.gestion_user.repositories.UserRepository;
 import com.example.gestion_user.security.LoginAttemptService;
+import com.example.gestion_user.services.AlfrescoService;
 import com.example.gestion_user.services.AuthenticationService;
 import com.example.gestion_user.services.EmailService;
 import com.example.gestion_user.services.UserService;
@@ -19,6 +20,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
@@ -36,7 +38,6 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     private EmailService emailService;
     @Autowired
     private UserService userService;
-
     private Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Autowired
@@ -44,8 +45,20 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     @Autowired
     private LoginAttemptService loginAttemptService;
+    @Autowired
+    private AlfrescoService alfrescoService;
     @Override
-    public User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException {
+    public User register(UserDto userDto, MultipartFile profileImageFile)  throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException {
+        String profileImages="profileImages";
+        String alfrescoFolderId;
+        if (alfrescoService.folderExists(profileImages)) {
+            alfrescoFolderId = alfrescoService.getFolderId(profileImages);
+        } else {
+            alfrescoFolderId = alfrescoService.addFolder(profileImages);
+        }
+
+        String alfrescoDocumentId = alfrescoService.addFileToFolder(profileImages, profileImageFile);
+
         // Check for duplicate CIN
         validateCin(userDto.getCin());
 
@@ -66,7 +79,9 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setGender(userDto.getGender());
         user.setJoinDate(new Date());
         user.setActive(false);
-        user.setNotLocked(false);
+        user.setNotLocked(true);
+        user.setProfileImage(alfrescoDocumentId);
+
         user.setLawyerId(null);
         user.setAuthorities(Role.ROLE_MANAGER.getAuthorities());
         user.setProfileImage(userService.getTemporaryProfileImage(user.getUsername()));
@@ -87,6 +102,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
     }
     @Override
     public User registerManager(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException {
+
         // Check for duplicate CIN
         validateCin(userDto.getCin());
 
@@ -101,6 +117,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         user.setCin(userDto.getCin());
         user.setEmail(userDto.getEmail());
         user.setPassword(encodedPassword);
+
         user.setRole(userDto.getRole());
         user.setBirthDate(userDto.getBirthDate());
         user.setCity(userDto.getCity());
@@ -132,7 +149,17 @@ public class AuthenticationServiceImpl implements AuthenticationService {
 
     /*Controle de saisi*/
 
-
+    private void validateCin(String cin) throws CinExistException {
+        if (userRepository.existsByCin(cin)) {
+            throw new CinExistException("CIN already exists");
+        }
+    }
+    public boolean isCinValid(String cin) {
+        if (cin == null || !cin.matches("[0-1]\\d{7}")) {
+            return false; // CIN must be 8 numbers starting with 0 or 1
+        }
+        return true; // CIN is valid
+    }
     private String generateUserId() {
         return RandomStringUtils.randomNumeric(10);
     }
@@ -173,17 +200,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
             return "fort";
         }
     }
-    private void validateCin(String cin) throws CinExistException {
-        if (userRepository.existsByCin(cin)) {
-            throw new CinExistException("CIN already exists");
-        }
-    }
-    public boolean isCinValid(String cin) {
-        if (cin == null || !cin.matches("[0-1]\\d{7}")) {
-            return false; // CIN must be 8 numbers starting with 0 or 1
-        }
-        return true; // CIN is valid
-    }
+
     private User validateNewUsernameAndEmail(String currentUsername, String newUsername, String newEmail) throws UserNotFoundException, UsernameExistException, EmailExistException {
         User userByNewUsername = userService.getUserByUsername(newUsername);
         User userByNewEmail = userService.getUserByEmail(newEmail);
@@ -216,6 +233,7 @@ public class AuthenticationServiceImpl implements AuthenticationService {
         }
         return email.matches("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
     }
+    @Override
     public String generateUniqueUsername(String firstName, String lastName) {
         String baseUsername = firstName.toLowerCase() + "." + lastName.toLowerCase();
         String username = baseUsername;

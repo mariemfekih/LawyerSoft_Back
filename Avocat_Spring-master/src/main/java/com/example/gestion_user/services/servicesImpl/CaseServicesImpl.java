@@ -19,6 +19,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.Date;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
@@ -36,8 +37,24 @@ public class CaseServicesImpl implements CaseService {
     CourtRepository courtRepository;
     @Autowired
     ContributorRepository contributorRepository;
+    @Autowired
+    CustomerRepository customerRepository;
 
     @Override
+    public Case addCase(CaseDto c, Long userId,Long customerId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        Customer customer= customerRepository.findById(customerId).orElseThrow(() -> new NotFoundException("Customer not found"));
+        Case case1 = new Case(c.getTitle(), c.getDescription(), c.getCreationDate(), c.getClosingDate(), c.getType(),c.getState());
+        case1.setUser(user);
+        case1.setCustomer(customer);
+
+        try {
+            return caseRepository.save(case1);
+        } catch (Exception ex) {
+            throw new NotFoundException("Failed to create case: " + ex.getMessage());
+        }
+    }
+/*    @Override
     public Case addCase(CaseDto c, Long userId) {
         User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
@@ -49,7 +66,7 @@ public class CaseServicesImpl implements CaseService {
         } catch (Exception ex) {
             throw new NotFoundException("Failed to create case: " + ex.getMessage());
         }
-    }
+    }*/
 
     @Override
     public Case updateCase(Long id, CaseDto updatedCaseDto) {
@@ -87,6 +104,13 @@ public List<Case> getUserCases(Long userId) {
     User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
     return user.getCases();
 }
+    @Override
+    public List<Case> getUserCasesWithoutFolder(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
+        return user.getCases().stream()
+                .filter(caseInstance -> caseInstance.getFolder() == null)
+                .collect(Collectors.toList());
+    }
 
     @Override
     public void deleteCase(Long idCase) {
@@ -95,9 +119,9 @@ public List<Case> getUserCases(Long userId) {
 
     @Override
     public Case getCaseById(Long idCase) {
-        return caseRepository.findById(idCase).get() ;
+        return caseRepository.findByIdCaseWithCustomer(idCase)
+                .orElse(null);
     }
-
     @Override
     public long getTotalCases() {
         return caseRepository.count();
@@ -243,7 +267,29 @@ public List<Case> getUserCases(Long userId) {
         // Save the contributor
         contributorRepository.save(contributor);
     }
+    @Override
+    public void updateContributor(Long contributorId, ContributorDto contributorDTO) {
+        // Find the contributor by ID
+        Contributor contributor = contributorRepository.findById(contributorId)
+                .orElseThrow(() -> new EntityNotFoundException("Contributor not found with id: " + contributorId));
 
+        // Update the contributor type
+        contributor.setType(contributorDTO.getType());
+
+        // Update the auxiliary if provided
+        if (contributorDTO.getIdAuxiliary() != null) {
+            // Find auxiliary by ID
+            Auxiliary auxiliary = auxiliaryRepository.findById(contributorDTO.getIdAuxiliary())
+                    .orElseThrow(() -> new EntityNotFoundException("Auxiliary not found with id: " + contributorDTO.getIdAuxiliary()));
+            contributor.setAuxiliary(auxiliary);
+        } else {
+            // Remove the auxiliary if it's not provided
+            contributor.setAuxiliary(null);
+        }
+
+        // Save the updated contributor
+        contributorRepository.save(contributor);
+    }
     @Override
     public List<Contributor> getContributorsByCaseId(Long caseId) {
         // Retrieve the case by ID
@@ -272,5 +318,9 @@ public List<Case> getUserCases(Long userId) {
     }
 
 
+    @Override
+    public Contributor getContributorById(Long id) {
+        return contributorRepository.findById(id).get();
+    }
 
 }

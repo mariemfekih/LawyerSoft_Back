@@ -20,10 +20,10 @@ public interface UserService {
    // User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException;
 
 
-    public User addUser(UserDto user);
+    public User addUser(UserDto user) throws IOException;
     public User updateUser(Long id, UserDto updatedUserDto);
     User updateUserActiveState(Long userId, boolean newActiveState) throws Exception;
-    User updateProfileImage(String username, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException;
+   // User updateProfileImage(String username, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException;
     void deleteUser(String email) throws  UserNotFoundException;
     void deleteUser(Long id) throws  UserNotFoundException;
 
@@ -45,6 +45,5 @@ public interface UserService {
 String getPasswordStrength(String password);
 boolean isCinValid(String cin);
 boolean isEmailValid(String email);
-String generateUniqueUsername(String firstName, String lastName);
 
 }

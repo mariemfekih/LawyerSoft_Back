@@ -33,9 +33,6 @@ public class Court implements Serializable {
     @Column(nullable = false)
     private String governorate;
 
-    @Column(nullable = false)
-    private String municipality;
-
     /*
  RELATION ENTRE COURT AND TRIAL
  */

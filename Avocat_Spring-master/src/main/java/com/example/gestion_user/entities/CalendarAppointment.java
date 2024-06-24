@@ -27,7 +27,8 @@ private Long idAppointment ;
     @Column(nullable = false)
     private String title;
 
-    @Column(nullable = false)
+    //@Column(nullable = false)
+    @Column
     private String description;
 
     @Column(nullable = false)

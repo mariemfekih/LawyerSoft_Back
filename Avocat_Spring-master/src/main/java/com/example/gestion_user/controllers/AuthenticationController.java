@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
@@ -37,7 +38,7 @@ public class AuthenticationController {
     private AuthenticationManager authenticationManager;
 
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody UserDto userDto) throws UserNotFoundException, UsernameExistException, EmailExistException, CinExistException, MessagingException {
+    public ResponseEntity<?> register(@RequestBody UserDto userDto, @RequestParam("profileImageFile") MultipartFile profileImageFile) throws UserNotFoundException, UsernameExistException, EmailExistException, CinExistException, MessagingException {
         // Check password strength
         String passwordStrength = authenticationService.getPasswordStrength(userDto.getPassword());
         if ("faible".equals(passwordStrength)) {
@@ -52,7 +53,7 @@ public class AuthenticationController {
             return ResponseEntity.badRequest().body("L'adresse e-mail n'est pas valide.");
         }
         try {
-            User newUser = authenticationService.register(userDto);
+            User newUser = authenticationService.register(userDto,profileImageFile);
 
             // After successful registration, create a UserPrincipal
             UserPrincipal userPrincipal = new UserPrincipal(newUser);

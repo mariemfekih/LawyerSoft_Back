@@ -43,19 +43,17 @@ public class CaseController {
     @Autowired
     JasperReportService jasperReportService;
     private static final Logger logger = LoggerFactory.getLogger(CaseController.class);
+    @PostMapping("/user/{userId}/customer/{customerId}")
+    public ResponseEntity<Case> addCase(@RequestBody CaseDto c, @PathVariable Long userId, @PathVariable Long customerId) {
+        Case addedCase = caseService.addCase(c, userId, customerId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(addedCase);
+    }
 
-
-
-//    @PostMapping
-//    public ResponseEntity<Case> addCase(@RequestBody CaseDto c) {
-//        Case addedCase = caseService.addCase(c);
-//        return ResponseEntity.status(HttpStatus.CREATED).body(addedCase);
-//    }
-@PostMapping("/{userId}")
+/*@PostMapping("/{userId}")
 public ResponseEntity<Case> addCase(@RequestBody CaseDto c, @PathVariable Long userId) {
     Case addedCase = caseService.addCase(c, userId);
     return ResponseEntity.status(HttpStatus.CREATED).body(addedCase);
-}
+}*/
 
     /*
      * Update Case
@@ -90,7 +88,11 @@ public ResponseEntity<Case> addCase(@RequestBody CaseDto c, @PathVariable Long u
         List<Case> cases = caseService.getUserCases(userId);
         return ResponseEntity.ok(cases);
     }
-
+    @GetMapping("/user/{userId}/without-folder")
+    public ResponseEntity<List<Case>> getUserCasesWithoutFolder(@PathVariable Long userId) {
+        List<Case> cases = caseService.getUserCasesWithoutFolder(userId);
+        return ResponseEntity.ok(cases);
+    }
     @GetMapping("/{idCase}")
     public ResponseEntity<Case> getCaseById(@PathVariable("idCase") Long idCase) {
         Case caseById = caseService.getCaseById(idCase);
@@ -217,6 +219,18 @@ public ResponseEntity<Case> addCase(@RequestBody CaseDto c, @PathVariable Long u
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error adding contributor to case: " + e.getMessage());
         }
     }
+    @PutMapping("/contributor/{contributorId}")
+    public ResponseEntity<?> updateContributor(@PathVariable Long contributorId, @RequestBody ContributorDto contributorDto) {
+        try {
+            caseService.updateContributor(contributorId, contributorDto);
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error updating contributor: " + e.getMessage());
+        }
+    }
+
 
     @GetMapping("/{caseId}/contributors")
     public ResponseEntity<List<Contributor>> getContributorsByCaseId(@PathVariable Long caseId) {
@@ -243,6 +257,16 @@ public ResponseEntity<Case> addCase(@RequestBody CaseDto c, @PathVariable Long u
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting contributor from case: " + e.getMessage());
         }
     }
+    @GetMapping("/contributor/{idContributor}")
+    public ResponseEntity<Contributor> getContributorById(@PathVariable Long idContributor) {
+        Contributor trial = caseService.getContributorById(idContributor);
+        if (trial != null) {
+            return ResponseEntity.ok(trial);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
+    }
+
     }
 
 

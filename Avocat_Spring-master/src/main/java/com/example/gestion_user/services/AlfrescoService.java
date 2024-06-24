@@ -10,7 +10,15 @@ import org.apache.chemistry.opencmis.client.api.Session;
 import org.apache.chemistry.opencmis.commons.PropertyIds;
 import org.apache.chemistry.opencmis.commons.data.ContentStream;
 import org.apache.chemistry.opencmis.commons.data.PropertyData;
+import org.apache.chemistry.opencmis.commons.exceptions.CmisObjectNotFoundException;
+import org.apache.chemistry.opencmis.commons.impl.json.JSONObject;
+import org.springframework.core.io.ByteArrayResource;
+import org.springframework.http.*;
 import org.springframework.stereotype.Service;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
+import org.springframework.web.client.RestClientException;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import org.apache.chemistry.opencmis.client.api.*;
 import org.apache.chemistry.opencmis.client.api.Document;
@@ -35,11 +43,56 @@ import java.util.Map;
 public class AlfrescoService {
 
     private final AlfrescoConfig alfrescoConfig;
+    private final String alfrescoBaseUrl = "http://localhost:8080/alfresco/api/-default-/public/alfresco/versions/1";
+    public void updateFileName(String fileId, String newName) {
+        updateNodeName(fileId, newName);
+    }
 
-    public String createFolder(String name)
-    {
+    public void updateFolderName(String folderId, String newName) {
+        updateNodeName(folderId, newName);
+    }
 
-        Session session=this.alfrescoConfig.createSession();
+    private void updateNodeName(String nodeId, String newName) {
+        String url = alfrescoBaseUrl + "/nodes/" + nodeId;
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setBasicAuth("admin", "admin"); // Replace with your Alfresco credentials
+
+        JSONObject requestBody = new JSONObject();
+        requestBody.put("name", newName);
+
+        HttpEntity<String> entity = new HttpEntity<>(requestBody.toString(), headers);
+
+        try {
+            ResponseEntity<String> response = new RestTemplate().exchange(url, HttpMethod.PUT, entity, String.class);
+            if (response.getStatusCode() == HttpStatus.OK) {
+                System.out.println("Node name updated in Alfresco.");
+            } else {
+                throw new RuntimeException("Failed to update node name in Alfresco. Status code: " + response.getStatusCodeValue());
+            }
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error updating node name in Alfresco: " + e.getMessage(), e);
+        }
+    }
+    public boolean folderExists(String folderName) {
+        Session session = this.alfrescoConfig.createSession();
+        try {
+            Folder folder = (Folder) session.getObjectByPath("/" + folderName);
+            return folder != null;
+        } catch (CmisObjectNotFoundException e) {
+            return false;
+        }
+    }
+    public String getFolderId(String folderName) {
+        Session session = this.alfrescoConfig.createSession();
+        Folder parent = session.getRootFolder();
+
+        Folder folder = (Folder) session.getObjectByPath("/" + folderName);
+        return folder.getId();
+    }
+    public String addFolder(String name) {
+        Session session = this.alfrescoConfig.createSession();
         Folder parent = session.getRootFolder();
 
         // prepare properties
@@ -49,11 +102,9 @@ public class AlfrescoService {
 
         // create the folder
         Folder newFolder = parent.createFolder(properties);
-        String nameFolder=newFolder.getName();
-        return nameFolder;
+        return newFolder.getId(); // Return the ID of the newly created folder
     }
-
-    public void deleteFolder(String folderName) {
+/*    public void deleteFolder(String folderName) {
         Session session = alfrescoConfig.createSession();
         Folder parent = session.getRootFolder();
         for (CmisObject object : parent.getChildren()) {
@@ -63,22 +114,30 @@ public class AlfrescoService {
             }
         }
         throw new IllegalArgumentException("Folder not found: " + folderName);
+    }*/
+public void deleteFolderById(String folderId) {
+    Session session = alfrescoConfig.createSession();
+    // Fetch the folder by ID
+    CmisObject cmisObject = session.getObject(folderId);
+    if (cmisObject instanceof Folder) {
+        Folder folder = (Folder) cmisObject;
+        // Recursively delete all children
+        deleteFolderContents(folder);
+        // Delete the folder itself
+        folder.delete(true);
+    } else {
+        throw new NotFoundException("Folder not found with id: " + folderId);
     }
+}
 
-    public void updateFolderName(String currentName, String newName) {
-        System.out.println("Updating folder name from " + currentName + " to " + newName);
-        Session session = alfrescoConfig.createSession();
-        Folder parent = session.getRootFolder();
-        for (CmisObject object : parent.getChildren()) {
-            if (object.getName().equals(currentName)) {
-                Folder folder = (Folder) object;
-                Map<String, Object> properties = new HashMap<>();
-                properties.put(PropertyIds.NAME, newName);
-                folder.updateProperties(properties);
-                return;
+    private void deleteFolderContents(Folder folder) {
+        for (CmisObject child : folder.getChildren()) {
+            if (child instanceof Folder) {
+                deleteFolderById(child.getId());
+            } else {
+                child.delete(true);
             }
         }
-        throw new IllegalArgumentException("Folder not found: " + currentName);
     }
     public String addFileToFolder(String folderName, MultipartFile file) throws IOException {
         Session session = alfrescoConfig.createSession();
@@ -128,22 +187,19 @@ public class AlfrescoService {
 
         return null;
     }
-    public void deleteFileByName(String folderName, String fileName) {
-        Session session = alfrescoConfig.createSession();
-        // Get the folder by name
-        Folder folder = getFolderByName(session, folderName);
-        if (folder == null) {
-            throw new NotFoundException("Folder not found: " + folderName);
-        }
-        // Find the document by name
-        Document document = getDocumentByName(folder, fileName);
-        if (document == null) {
-            throw new NotFoundException("File not found: " + fileName);
-        }
-        // Delete the document
-        document.delete(true);
-    }
 
+    public void deleteFileById(String fileId) {
+        Session session = alfrescoConfig.createSession();
+        // Fetch the document by ID
+        CmisObject cmisObject = session.getObject(fileId);
+        if (cmisObject instanceof Document) {
+            Document document = (Document) cmisObject;
+            // Delete the document
+            document.delete(true);
+        } else {
+            throw new NotFoundException("File not found with id: " + fileId);
+        }
+    }
     private Document getDocumentByName(Folder folder, String fileName) {
         // Get all the children (documents and folders) of the folder
         ItemIterable<CmisObject> children = folder.getChildren();
@@ -157,6 +213,80 @@ public class AlfrescoService {
 
         return null;
     }
+    public String createSubFolder(String parentFolderName, String subFolderName) {
+        Session session = alfrescoConfig.createSession();
+        // Get the parent folder by name
+        Folder parentFolder = getFolderByName(session, parentFolderName);
+        if (parentFolder == null) {
+            throw new NotFoundException("Parent folder not found: " + parentFolderName);
+        }
+        // Prepare properties for the sub-folder
+        Map<String, Object> properties = new HashMap<>();
+        properties.put(PropertyIds.NAME, subFolderName);
+        properties.put(PropertyIds.OBJECT_TYPE_ID, "cmis:folder");
+        // Create the sub-folder in the parent folder
+        Folder subFolder = parentFolder.createFolder(properties);
+        // Return the ID of the newly created sub-folder
+        return subFolder.getId();
+    }
+
+    public Document getFileById(String fileId) {
+        Session session = alfrescoConfig.createSession();
+        // Fetch the document by ID
+        CmisObject cmisObject = session.getObject(fileId);
+        if (cmisObject instanceof Document) {
+            Document document = (Document) cmisObject;
+            return document;
+        } else {
+            throw new NotFoundException("File not found with id: " + fileId);
+        }
+    }
+    public void createOrUpdateProfileImage(String profileImgId, MultipartFile file) {
+        String url = alfrescoBaseUrl + "/" + profileImgId + "/children";
+
+        HttpHeaders headers = new HttpHeaders();
+        headers.setContentType(MediaType.MULTIPART_FORM_DATA);
+        headers.setBasicAuth("admin", "admin"); // Replace with your Alfresco credentials
+
+        // Prepare the file content part
+        ByteArrayResource fileResource;
+        try {
+            fileResource = new ByteArrayResource(file.getBytes()) {
+                @Override
+                public String getFilename() {
+                    return file.getOriginalFilename();
+                }
+            };
+        } catch (Exception e) {
+            throw new RuntimeException("Error reading file: " + e.getMessage(), e);
+        }
+
+        MultiValueMap<String, Object> body = new LinkedMultiValueMap<>();
+        body.add("filedata", fileResource);
+
+        HttpEntity<MultiValueMap<String, Object>> requestEntity = new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<String> response = new RestTemplate().exchange(url, HttpMethod.POST, requestEntity, String.class);
+            if (response.getStatusCode() == HttpStatus.CREATED || response.getStatusCode() == HttpStatus.OK) {
+                System.out.println("Profile image uploaded/updated successfully in Alfresco.");
+            } else {
+                throw new RuntimeException("Failed to upload/update profile image in Alfresco. Status code: " + response.getStatusCodeValue());
+            }
+        } catch (RestClientException e) {
+            throw new RuntimeException("Error uploading/updating profile image in Alfresco: " + e.getMessage(), e);
+        }
+    }
+    public Document getFileByIdByPath(String fileId) {
+        Session session = alfrescoConfig.createSession();
+        CmisObject cmisObject = session.getObject(fileId);
+        if (cmisObject instanceof Document) {
+            return (Document) cmisObject;
+        } else {
+            throw new NotFoundException("File not found with id: " + fileId);
+        }
+    }
+
 
 }
 

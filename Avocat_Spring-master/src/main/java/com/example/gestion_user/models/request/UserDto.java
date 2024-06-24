@@ -6,6 +6,7 @@ import com.google.api.client.util.DateTime;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.web.multipart.MultipartFile;
 
 import javax.persistence.*;
@@ -35,6 +36,7 @@ public class UserDto {
     private UserRole role;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
+    @DateTimeFormat(pattern = "yyyy-MM-dd")
     private Date birthDate;
 
 
@@ -45,10 +47,6 @@ public class UserDto {
     private boolean active;
     private boolean notLocked;
     private Long lawyerId;
-    private String username;
-    @Temporal(TemporalType.DATE)
-    @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
-    private Date joinDate;
 
-    //private MultipartFile file;
-}
+
+   }

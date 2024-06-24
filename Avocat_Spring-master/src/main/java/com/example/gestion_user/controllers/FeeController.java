@@ -24,10 +24,17 @@ public class FeeController {
 
 
 
-    @PostMapping
-    public ResponseEntity<Fee> addFee(@RequestBody FeeDto a){
-        Fee fee = feeService.addFee(a);
-        return ResponseEntity.status(HttpStatus.CREATED).body(fee);
+    @PostMapping("/{userId}/{customerId}")
+    public ResponseEntity<Fee> addFee(@RequestBody FeeDto feeDto,
+                                      @PathVariable Long userId,
+                                      @PathVariable Long customerId,
+                                      @RequestParam List<Long> actionIds) {
+        try {
+            Fee fee = feeService.addFee(feeDto, userId, customerId, actionIds);
+            return ResponseEntity.status(HttpStatus.CREATED).body(fee);
+        } catch (Exception ex) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
+        }
     }
 
     @PutMapping("/{id}")
@@ -61,14 +68,21 @@ public class FeeController {
         }
     }
 
+    @PostMapping("/assign-fee-to-actions")
+    public ResponseEntity<Fee> addAndAssignFeeToActions(@RequestBody Fee fee, @RequestParam List<Long> actionIds) {
+        Fee assignedFee = feeService.AddAndAssignFeeToAction(fee, actionIds);
+        return ResponseEntity.status(HttpStatus.CREATED).body(assignedFee);
+    }
+
+
     /*@PostMapping("/addHonnoraireAndAffectToAffaire/{affaire-id}")
-    public ResponseEntity<Void> addHonnoraireAndAffectToAffaire(@RequestBody Fee honoraire, @PathVariable("affaire-id") Integer idAffaire ){
+    public ResponseEntity<Void> addHonnoraireAndAffectToAffaire(@RequestBody Fee honoraire, @PathVariable("affaire-id") Long idAffaire ){
         honoraireService.addHonoraireAndAffectToAffaire(honoraire, idAffaire);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @GetMapping("/generateQRCodeForHonoraire/{id-honoraire}")
-    public ResponseEntity<byte[]> generateQRCodeForHonoraire(@PathVariable("id-honoraire") Integer idHonoraire) {
+    public ResponseEntity<byte[]> generateQRCodeForHonoraire(@PathVariable("id-honoraire") Long idHonoraire) {
         try {
             byte[] qrCode = honoraireService.generateQRCodeForHonoraire(idHonoraire);
             HttpHeaders headers = new HttpHeaders();

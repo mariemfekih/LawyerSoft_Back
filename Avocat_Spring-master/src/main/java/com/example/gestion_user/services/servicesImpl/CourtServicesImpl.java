@@ -26,7 +26,6 @@ public class CourtServicesImpl implements CourtService {
         court.setAdress(c.getAdress());
         court.setPhone(c.getPhone());
         court.setGovernorate(c.getGovernorate());
-        court.setMunicipality(c.getMunicipality());
         court.setType(c.getType());
         try {
             return courtRepository.save(court);
@@ -46,7 +45,6 @@ public class CourtServicesImpl implements CourtService {
         existingCourt.setAdress(updatedCourtDto.getAdress());
         existingCourt.setPhone(updatedCourtDto.getPhone());
         existingCourt.setGovernorate(updatedCourtDto.getGovernorate());
-        existingCourt.setMunicipality(updatedCourtDto.getMunicipality());
         existingCourt.setType(updatedCourtDto.getType());
 
         // Save the updated Court entity

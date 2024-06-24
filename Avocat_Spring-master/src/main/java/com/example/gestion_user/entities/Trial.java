@@ -39,7 +39,7 @@ public class Trial {
    RELATION ENTRE Court AND Trial
     */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JsonIgnore
+    //@JsonIgnore
     @JoinColumn(name = "court_id") // foreign key column name
     private Court courtInstance;
 

@@ -7,13 +7,15 @@ import java.util.List;
 
 public interface FeeService {
 
-    Fee addFee(FeeDto fee) ;
+    Fee addFee(FeeDto f,Long userId,Long customerId,List<Long> actionIds) ;
     Fee updateFee (Long id , FeeDto fee) ;
     void deleteFee (Long idFee) ;
     List<Fee> getFees() ;
     Fee getFeeById (Long idFee);
 
-   // public void addHonoraireAndAffectToAffaire(Fee honoraire, Integer idAffaire);
+    Fee AddAndAssignFeeToAction(Fee fee, List<Long> actionIds);
+
+    // public void addHonoraireAndAffectToAffaire(Fee honoraire, Integer idAffaire);
 
     //public byte[] generateQRCodeForHonoraire(Integer idHonoraire) throws Exception;
 }

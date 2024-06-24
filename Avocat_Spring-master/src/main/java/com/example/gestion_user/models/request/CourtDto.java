@@ -21,5 +21,4 @@ public class CourtDto {
 
     private String governorate;
 
-    private String municipality;
 }

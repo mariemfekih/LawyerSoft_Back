@@ -41,10 +41,11 @@ public class Case implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date creationDate;
 
-    @Column(nullable = false)
+    @Column
     @Temporal(TemporalType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date closingDate;
+
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
@@ -58,9 +59,10 @@ public class Case implements Serializable {
     /*
     RELATION ENTRE CASE AND TRIAL
     */
+
     @OneToMany(mappedBy = "caseInstance")
     @JsonIgnore
-    private List<Trial> trials;
+    private List<Trial> trials = new ArrayList<>();
 
 
     /*
@@ -85,6 +87,10 @@ case-contributor
     @JsonIgnore
     private List<Contributor> contributors;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id")
+    @JsonIgnore
+    private Customer customer;
     // Constructor with random reference generation
     public Case(String title, String description, Date creationDate, Date closingDate, CaseType type,CaseState state){
         this.title = title;
@@ -110,7 +116,9 @@ case-contributor
     }
 
 
-
+    public Long getCustomerId() {
+        return this.customer != null ? this.customer.getIdCustomer() : null;
+    }
 
 
 }

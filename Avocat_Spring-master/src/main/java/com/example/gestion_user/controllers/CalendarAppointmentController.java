@@ -1,6 +1,9 @@
 package com.example.gestion_user.controllers;
 
 import com.example.gestion_user.entities.CalendarAppointment;
+import com.example.gestion_user.entities.Customer;
+import com.example.gestion_user.entities.User;
+import com.example.gestion_user.exceptions.NotFoundException;
 import com.example.gestion_user.models.request.CalendarAppointmentDto;
 import com.example.gestion_user.services.CalendarAppointmentService;
 import lombok.AllArgsConstructor;
@@ -45,5 +48,11 @@ public class CalendarAppointmentController {
     public ResponseEntity<CalendarAppointment> getCalendarAppointmentById(@PathVariable Long id) {
         CalendarAppointment appointment = calendarAppointmentService.getCalendarAppointmentById(id);
         return ResponseEntity.ok().body(appointment);
+    }
+
+    @GetMapping("/user/{id}")
+    public ResponseEntity<List<CalendarAppointment>> getUserAppointments(@PathVariable Long id) {
+        List<CalendarAppointment> appointments = calendarAppointmentService.getUserAppointments(id);
+        return ResponseEntity.ok().body(appointments);
     }
 }

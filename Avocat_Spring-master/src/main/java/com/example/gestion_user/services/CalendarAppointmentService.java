@@ -11,4 +11,5 @@ public interface CalendarAppointmentService {
     void deleteCalendarAppointment (Long id) ;
     List<CalendarAppointment> getCalendarAppointments() ;
     CalendarAppointment getCalendarAppointmentById (Long id);
+    List<CalendarAppointment> getUserAppointments(Long userId);
 }

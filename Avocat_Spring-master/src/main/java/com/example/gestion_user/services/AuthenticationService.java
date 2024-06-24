@@ -6,12 +6,13 @@ import com.example.gestion_user.exceptions.EmailExistException;
 import com.example.gestion_user.exceptions.UserNotFoundException;
 import com.example.gestion_user.exceptions.UsernameExistException;
 import com.example.gestion_user.models.request.UserDto;
+import org.springframework.web.multipart.MultipartFile;
 
 import javax.mail.MessagingException;
 import java.io.IOException;
 
 public interface AuthenticationService {
-    User register(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException;
+    User register(UserDto userDto, MultipartFile profileImageFile)  throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException;
     User registerManager(UserDto userDto) throws UserNotFoundException, EmailExistException, UsernameExistException, CinExistException, IOException, MessagingException;
 
 

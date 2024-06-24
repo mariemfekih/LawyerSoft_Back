@@ -1,14 +1,24 @@
 package com.example.gestion_user.services.servicesImpl;
 
+//import com.example.gestion_user.entities.Action;
+import com.example.gestion_user.entities.Action;
+import com.example.gestion_user.entities.Customer;
 import com.example.gestion_user.entities.Fee;
+import com.example.gestion_user.entities.User;
 import com.example.gestion_user.exceptions.NotFoundException;
 import com.example.gestion_user.models.request.FeeDto;
+import com.example.gestion_user.repositories.ActionRepository;
+import com.example.gestion_user.repositories.CustomerRepository;
 import com.example.gestion_user.repositories.FeeRepository;
+import com.example.gestion_user.repositories.UserRepository;
+import com.example.gestion_user.services.ActionService;
 import com.example.gestion_user.services.FeeService;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
+import java.security.SecureRandom;
 import java.util.List;
 
 @AllArgsConstructor
@@ -18,21 +28,48 @@ public class FeeServicesImpl implements FeeService {
     @Autowired
     FeeRepository feeRepository ;
 
+    @Autowired
+    ActionService actionRepository ;
+    @Autowired
+    CustomerRepository customerRepository;
+    @Autowired
+    UserRepository userRepository;
+
    /* @Autowired
     AffaireRepository affaireRepository ;*/
 
     @Override
-    public Fee addFee(FeeDto f) {
+    @Transactional
+    public Fee addFee(FeeDto f, Long userId, Long customerId, List<Long> actionIds) {
+        // Retrieve actions by IDs
+        List<Action> actions = actionRepository.getActionsByIds(actionIds);
+
+        // Calculate total amount from actions
+        float totalAmount = 0;
+        for (Action action : actions) {
+            totalAmount += action.getAmount();
+        }
+
+        // Retrieve User and Customer entities
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new NotFoundException("User not found"));
+        Customer customer = customerRepository.findById(customerId)
+                .orElseThrow(() -> new NotFoundException("Customer not found"));
+
+        // Create Fee entity
         Fee fee = new Fee();
         fee.setAmount(f.getAmount());
         fee.setReference(f.getReference());
         fee.setDate(f.getDate());
         fee.setRemain(f.getRemain());
-        fee.setType(f.getType());
+        fee.setUserInstance(user); // Set user relationship
+        fee.setCustomer(customer); // Set customer relationship
+        fee.setAmount(totalAmount); // Set total amount
+
         try {
             return feeRepository.save(fee);
         } catch (Exception ex) {
-            throw new NotFoundException("Failed to create court: " + ex.getMessage());
+            throw new RuntimeException("Failed to create fee: " + ex.getMessage());
         }
     }
     @Override
@@ -45,8 +82,8 @@ public class FeeServicesImpl implements FeeService {
         existingFee.setAmount(updatedFeeDto.getAmount());
         existingFee.setReference(updatedFeeDto.getReference());
         existingFee.setDate(updatedFeeDto.getDate());
-        existingFee.setRemain(updatedFeeDto.getRemain());
-        existingFee.setType(updatedFeeDto.getType());
+       existingFee.setRemain(existingFee.getRemain());
+       // existingFee.setType(updatedFeeDto.getType());
 
         // Save the updated Fee entity
         try {
@@ -71,15 +108,33 @@ public class FeeServicesImpl implements FeeService {
         return feeRepository.findById(idFee).get() ;
     }
 
+    @Override
+    public Fee AddAndAssignFeeToAction(Fee fee, List<Long> actionIds)
+    {
+        List<Action> actions = actionRepository.getActionsByIds(actionIds);
+
+        float totalAmount = 0;
+        for (Action action : actions) {
+            totalAmount += action.getAmount();
+        }
+
+        fee.setAmount(totalAmount);
+
+        feeRepository.save(fee);
+
+        return fee;
+    }
+
+
    /* @Override
-    public void addHonoraireAndAffectToAffaire(Fee honoraire, Integer idAffaire) {
+    public void addHonoraireAndAffectToAffaire(Fee honoraire, Long idAffaire) {
         Affaire affaire = affaireRepository.findById(idAffaire).orElse(null);
         honoraire.setAffaire(affaire);
         honoraireRepository.save(honoraire);
 
     }
 
-  public byte[] generateQRCodeForHonoraire(Integer idHonoraire) throws Exception {
+  public byte[] generateQRCodeForHonoraire(Long idHonoraire) throws Exception {
         Fee honoraire = honoraireRepository.findById(idHonoraire).orElse(null);
         if (honoraire == null) {
             throw new Exception("Honoraire not found");

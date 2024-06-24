@@ -86,5 +86,9 @@ public class CalendarAppointmentServiceImpl implements CalendarAppointmentServic
     }
 
 
-
+    @Override
+    public List<CalendarAppointment> getUserAppointments(Long userId) {
+        User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("user not found"));
+        return user.getCalendarAppointments();
+    }
 }

@@ -49,6 +49,8 @@ public class Auxiliary implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date birthDate;
 
+    @Column(nullable = false)
+    private Boolean gender;
 /*
 * Controle de sais
 * */

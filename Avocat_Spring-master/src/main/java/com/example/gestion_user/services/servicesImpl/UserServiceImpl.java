@@ -9,6 +9,7 @@ import com.example.gestion_user.repositories.CaseRepository;
 import com.example.gestion_user.repositories.UserRepository;
 //import com.example.gestion_user.security.LoginAttemptService;
 import com.example.gestion_user.security.LoginAttemptService;
+import com.example.gestion_user.services.AlfrescoService;
 import com.example.gestion_user.services.EmailService;
 import com.example.gestion_user.services.UserService;
 import org.apache.commons.lang3.RandomStringUtils;
@@ -46,8 +47,8 @@ public class UserServiceImpl implements UserService, UserDetailsService {
     private UserRepository userRepository;
     @Autowired
     private CaseRepository caseRepository;
-
-
+@Autowired
+private AlfrescoService alfrescoService;
    private Logger LOGGER = LoggerFactory.getLogger(getClass());
 
     @Autowired
@@ -55,19 +56,75 @@ public class UserServiceImpl implements UserService, UserDetailsService {
 
     @Autowired
     private LoginAttemptService loginAttemptService;
-    @Override
-    public User addUser(UserDto u){
+
+
+   /* @Override
+    public User addUser(UserDto u, MultipartFile profileImageFile) throws IOException {
+        String profileImages="profileImages";
+        String alfrescoFolderId;
+        if (alfrescoService.folderExists(profileImages)) {
+            alfrescoFolderId = alfrescoService.getFolderId(profileImages);
+        } else {
+            alfrescoFolderId = alfrescoService.addFolder(profileImages);
+        }
+
+        String alfrescoDocumentId = alfrescoService.addFileToFolder(profileImages, profileImageFile);
+        isCinValid(u.getCin());
+        isEmailValid(u.getEmail());
+        String encodedPassword = encodePassword(u.getPassword());
         User user= new User();
         user.setFirstName(u.getFirstName());
         user.setLastName(u.getLastName());
-       // user.setUsername(u.getUsername());
+        user.setUsername(
+                generateUniqueUsername(u.getFirstName(), u.getLastName()));
         user.setEmail(u.getEmail());
         user.setCity(u.getCity());
         user.setCin(u.getCin());
+        if (u.getRole() == null) {
+            throw new NullPointerException("Role cannot be null");
+        }
         user.setRole(u.getRole());
         user.setGender(u.getGender());
-        user.setActive(false);
-        user.setNotLocked(false);
+        user.setActive(u.isActive());
+        user.setNotLocked(true);
+        user.setJoinDate(new Date());
+        user.setBirthDate(u.getBirthDate());
+        user.setPassword(encodedPassword);
+        user.setProfileImage(alfrescoDocumentId);
+        if(u.getRole()==UserRole.MANAGER){
+            user.setLawyerId(u.getLawyerId());
+        }else {user.setLawyerId(null);}
+        user.setAuthorities(Role.ROLE_MANAGER.getAuthorities());
+
+        try {
+            return userRepository.save(user);
+        } catch (Exception ex) {
+            throw new NotFoundException("Failed to create user: " + ex.getMessage());
+        }
+    }*/
+@Override
+    public User addUser(UserDto u){
+        isCinValid(u.getCin());
+        isEmailValid(u.getEmail());
+        String encodedPassword = encodePassword(u.getPassword());
+        User user= new User();
+        user.setFirstName(u.getFirstName());
+        user.setLastName(u.getLastName());
+        user.setUsername(
+                generateUniqueUsername(u.getFirstName(), u.getLastName()));
+        user.setEmail(u.getEmail());
+        user.setCity(u.getCity());
+        user.setCin(u.getCin());
+        if (u.getRole() == null) {
+            throw new NullPointerException("Role cannot be null");
+        }
+        user.setRole(u.getRole());
+        user.setGender(u.getGender());
+        user.setActive(u.isActive());
+        user.setNotLocked(true);
+        user.setJoinDate(new Date());
+        user.setBirthDate(u.getBirthDate());
+        user.setPassword(encodedPassword);
 
         if(u.getRole()==UserRole.MANAGER){
             user.setLawyerId(u.getLawyerId());
@@ -93,15 +150,16 @@ public class UserServiceImpl implements UserService, UserDetailsService {
             existingUser.setLawyerId(updatedUserDto.getLawyerId());
         }else {existingUser.setLawyerId(null);}
 
+
         return userRepository.save(existingUser);
     }
 
-    @Override
+/*    @Override
     public User updateProfileImage(String username, MultipartFile profileImage) throws UserNotFoundException, UsernameExistException, EmailExistException, IOException, NotAnImageFileException {
         User user = validateNewUsernameAndEmail(username, null, null);
         saveProfileImage(user, profileImage);
         return user;
-    }
+    }*/
     @Override
     public User updateUserActiveState(Long userId, boolean newActiveState) throws Exception{
         Optional<User> userOptional = userRepository.findById(userId);

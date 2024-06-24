@@ -33,13 +33,8 @@ public class File implements Serializable {
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date creationDate;
 
-    /*
-  Relation entre Folder et file
-  */
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "folder_id")
     @JsonIgnore
     private Folder folder;
-//    @ManyToMany
-//    private List<Folder> folders = new ArrayList<>();
 }

@@ -1,8 +1,6 @@
 package com.example.gestion_user.entities;
 
-import com.example.gestion_user.entities.enums.FolderStatus;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.*;
 import lombok.*;
 
 import javax.persistence.*;
@@ -15,6 +13,8 @@ import java.util.*;
 @AllArgsConstructor
 @NoArgsConstructor
 @Table(name = "folders")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Folder implements Serializable {
 
     @Id
@@ -22,34 +22,42 @@ public class Folder implements Serializable {
     @Column(nullable = false, updatable = false)
     private Long idFolder;
 
-    @Column(nullable = false,unique = true)
+    @Column(nullable = false, unique = true)
     @NotBlank
     private String name;
+
+    @Column(nullable = false, unique = true)
+    @NotBlank
+    private String path;
 
     @Column(nullable = false)
     @Temporal(TemporalType.DATE)
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd")
     private Date creationDate;
 
-    @Column(nullable = false)
-    @Enumerated(EnumType.STRING)
-    private FolderStatus status;
-
-    /*
-    RELATION ENTRE CASE AND FOLDER
-     */
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "case_id") // foreign key column name
     private Case caseInstance;
 
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id") // foreign key column name
+    @JsonBackReference
+    private Customer customerInstance;
 
-    /*
-        Relation entre Folder et File
-        */
-    @OneToMany(mappedBy = "folder")
-    @JsonIgnore
-    private List<File> files;
+    @OneToMany(mappedBy = "folder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<File> files = new ArrayList<>();
 
-//    @ManyToMany(mappedBy="folders")
-//    private List<File> files = new ArrayList<>();
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_folder_id")
+    @JsonBackReference
+    private Folder parentFolder;
+
+    @OneToMany(mappedBy = "parentFolder", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonManagedReference
+    private List<Folder> subFolders = new ArrayList<>();
+
+
+
+
 }

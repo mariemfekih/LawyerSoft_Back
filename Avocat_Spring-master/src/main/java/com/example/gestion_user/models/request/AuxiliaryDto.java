@@ -29,4 +29,7 @@ public class AuxiliaryDto {
     private String city;
 
     private Date birthDate;
+
+    private Boolean gender;
+
 }

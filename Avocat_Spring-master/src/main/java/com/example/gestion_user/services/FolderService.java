@@ -6,17 +6,18 @@ import com.example.gestion_user.models.request.FolderDto;
 import java.util.List;
 
 public interface FolderService {
-    Folder addFolder(FolderDto f, Long caseId);
+    String addFolder( Long caseId);
     //public Folder updateFolder( Long id,FolderDto folder);
-    Folder updateFolder(Long id, FolderDto updatedFolderDto);
-    public void deleteFolder(Long idFolder);
+    void updateFolderName(String path, String newName);
+    void deleteFolderByPath(String path);
+    Long getIdByPath(String path);
     public List<Folder> getFolders();
     public Folder getFolderByName(String name);
     public Folder getFolderById(Long idFolder);
 
-
-    //public List<String> getNomsDossiers();
-    //  public Dossier ajouterDossier(Dossier dossier, Integer idPhase, List<Fichier> files);// shoufha
-
+  Folder addSubFolder(Long caseId, Long parentFolderId);
+    List<Folder> getSubfolders(Long parentFolderId);
+    List<Folder> getFoldersByUserId(Long userId);
+    String addFolderByName(String folderName);
 
 }

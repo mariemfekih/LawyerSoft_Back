@@ -60,18 +60,25 @@ public class User implements Serializable {
 
     @Column(nullable = false)
     private Boolean gender;
-    @Lob
-    private Blob image;
-  //  @Column(columnDefinition = "MEDIUMBLOB")
-    private String profileImage;
+
     //private String profileImage;
     private Date lastLoginDate;
     private Date lastLoginDateDisplay;
+    @Column
     private Date joinDate;
     private String[] authorities;
     private boolean isActive = false;
     private boolean isNotLocked;
     private Long lawyerId;
+
+   /* @Lob
+    @Column(name = "image", columnDefinition = "BLOB")
+    private byte[] image;
+*/
+    @Column
+    private String profileImage;
+
+
     /*
      * Controle de sais
      * */
@@ -86,7 +93,7 @@ public class User implements Serializable {
      RELATION ENTRE User AND Fee
      */
     @OneToMany(mappedBy = "userInstance", cascade = CascadeType.ALL)
-    @JsonIgnore
+    //@JsonIgnore
     private List<Fee> fees;
     /*
     Relation entre User et Case
@@ -118,4 +125,11 @@ user-appointment
     @JsonIgnore
     private List<Auxiliary> auxiliaries;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<Customer> customers;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
+    private List<CalendarAppointment> calendarAppointments;
 }

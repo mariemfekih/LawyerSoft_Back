@@ -11,7 +11,7 @@ public interface AuxiliaryService {
     void deleteAuxiliary (Long idAuxiliary) ;
     List<Auxiliary> getAuxiliaries() ;
     Auxiliary getAuxiliaryById (Long idAuxiliary);
-    List<Auxiliary> getUserAuxiliary(Long userId);
+    List<Auxiliary> getUserAuxiliaries(Long userId);
     Auxiliary getAuxiliaryByCin(String cin);
     Auxiliary getAuxiliaryByEmail(String email);
 

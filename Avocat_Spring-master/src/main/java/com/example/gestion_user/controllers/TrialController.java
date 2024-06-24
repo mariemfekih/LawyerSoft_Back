@@ -1,6 +1,9 @@
 package com.example.gestion_user.controllers;
 
+import com.example.gestion_user.entities.Case;
 import com.example.gestion_user.entities.Trial;
+import com.example.gestion_user.models.request.CaseDto;
+import com.example.gestion_user.models.request.TrialDto;
 import com.example.gestion_user.services.TrialService;
 import lombok.AllArgsConstructor;
 import org.slf4j.Logger;
@@ -49,14 +52,25 @@ public class TrialController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
         }
     }
-    @PutMapping("/updateTrial")
-    public ResponseEntity<Trial> updateTrial(@RequestBody Trial trial) {
-        Trial updatedTrial = trialService.updateTrial(trial);
+
+    @PutMapping("/{idTrial}")
+    public ResponseEntity<Trial> updateTrial(@PathVariable Long idTrial, @RequestBody TrialDto updatedTrialDto) {
+        Trial existingTrial = trialService.getTrialById(idTrial);
+
+        if (existingTrial == null) {
+            // If the Trial doesn't exist, return a 404 Not Found response
+            return ResponseEntity.notFound().build();
+        }
+
+        // Call the service method to update the Trial entity
+        Trial updatedTrial = trialService.updateTrial(idTrial, updatedTrialDto);
+
+        // Return the updated case with a 200 OK status
         return ResponseEntity.ok(updatedTrial);
     }
 
     @ResponseStatus(HttpStatus.OK)
-    @DeleteMapping(" /{idTrial}")
+    @DeleteMapping(" /deleteTrial/{idTrial}")
     public ResponseEntity<Void> deleteTrial(@PathVariable Long idTrial) {
         trialService.deleteTrial(idTrial);
         return ResponseEntity.noContent().build();
@@ -80,6 +94,19 @@ public class TrialController {
             return ResponseEntity.ok(trial);
         } else {
             return ResponseEntity.notFound().build();
+        }
+    }
+    @ResponseStatus(HttpStatus.OK)
+    @DeleteMapping("/{caseId}/deleteTrial/{trialId}")
+    public ResponseEntity<?> deleteTrial(@PathVariable Long caseId, @PathVariable Long trialId) {
+        try {
+            trialService.deleteTrialFromCase(caseId, trialId);
+            logger.info("Trial " + trialId + " deleted");
+            return ResponseEntity.ok().build();
+        } catch (EntityNotFoundException e) {
+            return ResponseEntity.notFound().build();
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error deleting trial from case: " + e.getMessage());
         }
     }
 
